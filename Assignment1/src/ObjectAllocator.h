@@ -91,6 +91,8 @@ struct OAConfig
 
     unsigned LeftAlignSize_;  // number of alignment bsizeof(word_t)ytes required to align first block
     unsigned InterAlignSize_; // number of alignment bytes required between remaining blocks
+
+	void SetInterAlignSize(size_t objSize);
 };
 
 // ObjectAllocator statistical info
@@ -174,15 +176,22 @@ public:
 
 private:
     // Some "suggested" members (only a suggestion!)
+	OAStats stats;
+	OAConfig configuration;
+	size_t headerSize; // Post alignment and padding
+	size_t dataSize;  // Post alignment and padding
     GenericObject *PageList_;           // the beginning of the list of pages
     GenericObject *FreeList_;           // the beginning of the list of objects
-    GenericObject* allocate_new_page(GenericObject* PageList);       // allocates another page of objects
-    void put_on_freelist(void *Object); // puts Object onto the free list
+    void allocate_new_page_safe(GenericObject* PageList);       // allocates another page of objects
+	GenericObject* allocate_new_page(size_t pageSize);
+    void put_on_freelist(GenericObject*Object); // puts Object onto the free list
 
     // Make private to prevent copy construction and assignment
     ObjectAllocator(const ObjectAllocator &oa);
 
     ObjectAllocator &operator=(const ObjectAllocator &oa);
+
+	void InsertLinkedList(GenericObject** head, GenericObject* node);
 };
 
 #endif
