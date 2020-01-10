@@ -64,6 +64,23 @@ ObjectAllocator::~ObjectAllocator()
 {
 	// We will need to call the destructor for every active object, and then
 	// free the entire page
+	// Walk the pages
+	//GenericObject* page = this->PageList_;
+	//while(page != nullptr)
+	//{
+	//	GenericObject* next = page->Next;
+	//	// Free external headers.
+	//	if(this->configuration.HBlockInfo_.type_ == OAConfig::hbExternal)
+	//	{
+	//		unsigned char* headerAddr = reinterpret_cast<unsigned char*>(page) + this->headerSize;
+	//		for(unsigned i = 0; i < configuration.ObjectsPerPage_; i++)
+	//		{
+	//			freeHeader(reinterpret_cast<GenericObject*>(headerAddr), OAConfig::hbExternal);
+	//		}
+	//	}
+	//	delete[] reinterpret_cast<unsigned char*>(page);
+	//	page = next;
+	//}
 }
 
 void* ObjectAllocator::Allocate(const char* label)
@@ -124,19 +141,19 @@ void ObjectAllocator::Free(void* Object)
 	GenericObject* object = reinterpret_cast<GenericObject*>(Object);
 	// Check if pad bytes are OK AKA boundary check
 	// If there are no paddings...
-	if(this->configuration.PadBytes_ == 0)
+
+	if (this->configuration.DebugOn_)
 	{
 		check_boundary_full(reinterpret_cast<unsigned char*>(Object));
-	}
-	else
-	{
-		if (!checkPadding(toLeftPad(object), this->configuration.PadBytes_))
 		{
-			throw OAException(OAException::E_BAD_BOUNDARY, "Bad boundary.");
-		}
-		if (!checkPadding(toRightPad(object), this->configuration.PadBytes_))
-		{
-			throw OAException(OAException::E_BAD_BOUNDARY, "Bad boundary.");
+			if (!checkPadding(toLeftPad(object), this->configuration.PadBytes_))
+			{
+				throw OAException(OAException::E_CORRUPTED_BLOCK, "Bad boundary.");
+			}
+			if (!checkPadding(toRightPad(object), this->configuration.PadBytes_))
+			{
+				throw OAException(OAException::E_CORRUPTED_BLOCK, "Bad boundary.");
+			}
 		}
 	}
 	
@@ -318,25 +335,34 @@ void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE he
 	{
 		// We check if it has been freed by checking the last byte of the object and comparing
 		// to 0xCC
-		unsigned char* lastChar = reinterpret_cast<unsigned char*>(Object) + stats.ObjectSize_ - 1;
-		if (*lastChar == ObjectAllocator::FREED_PATTERN)
-			throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
+		if (this->configuration.DebugOn_)
+		{
+			unsigned char* lastChar = reinterpret_cast<unsigned char*>(Object) + stats.ObjectSize_ - 1;
+			if (*lastChar == ObjectAllocator::FREED_PATTERN)
+				throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
+		}
 		break;
 	}
 	case OAConfig::hbBasic:
 	{
 		// Check if the bit is already free
-		if (0 == *(headerAddr + sizeof(unsigned)))
-			throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
+		if (this->configuration.DebugOn_)
+		{
+			if (0 == *(headerAddr + sizeof(unsigned)))
+				throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
+		}
 		// Reset the basic header
 		memset(headerAddr, 0, OAConfig::BASIC_HEADER_SIZE);
 		break;
 	}
 	case OAConfig::hbExtended:
 	{
-		if (0 == *(headerAddr + sizeof(unsigned) + this->configuration.HBlockInfo_.additional_
-			+ sizeof(unsigned short)))
-			throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
+		if (this->configuration.DebugOn_)
+		{
+			if (0 == *(headerAddr + sizeof(unsigned) + this->configuration.HBlockInfo_.additional_
+				+ sizeof(unsigned short)))
+				throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
+		}
 		// Reset the basic header part of the extended to 0
 		memset(headerAddr + this->configuration.HBlockInfo_.additional_ + sizeof(unsigned short), 0, OAConfig::BASIC_HEADER_SIZE);
 		break;
@@ -344,8 +370,9 @@ void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE he
 	case OAConfig::hbExternal:
 	{
 		// Free the external values
+			
 		MemBlockInfo** info = reinterpret_cast<MemBlockInfo**>(headerAddr);
-		if(nullptr == *info)
+		if(nullptr == *info	&& this->configuration.DebugOn_)
 			throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
 		delete *info;
 		*info = nullptr;
