@@ -31,3 +31,6 @@ $(OBJDIR):
 
 clean:
 	-rm -rf $(OBJDIR) $(TARGET_FILE)
+
+diff:
+	kdiff3 debug.txt output-sample-zeros-LP64.txt

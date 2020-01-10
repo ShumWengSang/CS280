@@ -7,12 +7,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "assigment1", "assigment1.vc
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Console|x64 = Console|x64
+		Console|x86 = Console|x86
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{10A4AF3A-ECF0-4361-9C4F-A2BD36F5A97C}.Console|x64.ActiveCfg = Console|x64
+		{10A4AF3A-ECF0-4361-9C4F-A2BD36F5A97C}.Console|x64.Build.0 = Console|x64
+		{10A4AF3A-ECF0-4361-9C4F-A2BD36F5A97C}.Console|x86.ActiveCfg = Console|Win32
+		{10A4AF3A-ECF0-4361-9C4F-A2BD36F5A97C}.Console|x86.Build.0 = Console|Win32
 		{10A4AF3A-ECF0-4361-9C4F-A2BD36F5A97C}.Debug|x64.ActiveCfg = Debug|x64
 		{10A4AF3A-ECF0-4361-9C4F-A2BD36F5A97C}.Debug|x64.Build.0 = Debug|x64
 		{10A4AF3A-ECF0-4361-9C4F-A2BD36F5A97C}.Debug|x86.ActiveCfg = Debug|Win32

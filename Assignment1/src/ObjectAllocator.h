@@ -91,8 +91,6 @@ struct OAConfig
 
     unsigned LeftAlignSize_;  // number of alignment bsizeof(word_t)ytes required to align first block
     unsigned InterAlignSize_; // number of alignment bytes required between remaining blocks
-
-	void SetInterAlignSize(size_t objSize);
 };
 
 // ObjectAllocator statistical info
@@ -122,6 +120,12 @@ struct MemBlockInfo
     bool in_use;        // Is the block free or in use?
     char *label;        // A dynamically allocated NUL-terminated string
     unsigned alloc_num; // The allocation number (count) of this block
+
+	MemBlockInfo(unsigned alloc_num, const char* label);
+	~MemBlockInfo();
+
+	MemBlockInfo(const MemBlockInfo& ) = delete;
+	MemBlockInfo& operator=(const MemBlockInfo&) = delete;
 };
 
 // This memory manager class 
@@ -180,18 +184,42 @@ private:
 	OAConfig configuration;
 	size_t headerSize; // Post alignment and padding
 	size_t dataSize;  // Post alignment and padding
-    GenericObject *PageList_;           // the beginning of the list of pages
-    GenericObject *FreeList_;           // the beginning of the list of objects
-    void allocate_new_page_safe(GenericObject* PageList);       // allocates another page of objects
-	GenericObject* allocate_new_page(size_t pageSize);
+    GenericObject *PageList_ = nullptr;           // the beginning of the list of pages
+    GenericObject *FreeList_ = nullptr;           // the beginning of the list of objects
+    void allocate_new_page_safe(GenericObject* &PageList);       // allocates another page of objects with checking
+	GenericObject* allocate_new_page(size_t pageSize);			// Calls the actual new for the page.
     void put_on_freelist(GenericObject*Object); // puts Object onto the free list
 
+
+	// For allocate
+	void incrementStats();
+
+	void freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType);
+	// Given an addr, creates a handle at that point according to header type and config
+	void updateHandle(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, const char* label = nullptr);
+	// Builds a header when initialized from page. No checks
+    void buildBasicHeader(GenericObject* addr);
+	// Called when we allocate. Builds the external header for user. No checks
+	void buildExternalHeader(GenericObject* Object, const char* label);
+	// Called when allocate. Builds the extended header
+	void buildExtendedHeader(GenericObject* Object);
+	void ObjectAllocator::check_boundary_full(unsigned char* addr);
+
+    // Check padding
+	bool checkPadding(unsigned char* paddingAddr, size_t size);
+
+	// Given an address to an object, returns the address of the object's header file.
+	unsigned char* toHeader(GenericObject* obj);
+	unsigned char* toLeftPad(GenericObject* obj);
+	unsigned char* toRightPad(GenericObject* obj);
+
+	
     // Make private to prevent copy construction and assignment
-    ObjectAllocator(const ObjectAllocator &oa);
+	ObjectAllocator(const ObjectAllocator& oa) = delete;
 
-    ObjectAllocator &operator=(const ObjectAllocator &oa);
+    ObjectAllocator &operator=(const ObjectAllocator &oa) = delete;
 
-	void InsertLinkedList(GenericObject** head, GenericObject* node);
+	void InsertHead(GenericObject* &head, GenericObject* node);
 };
 
 #endif
