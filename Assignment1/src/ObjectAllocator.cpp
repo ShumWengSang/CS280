@@ -8,7 +8,7 @@ constexpr size_t operator "" _z(unsigned long long n)
 }
 
 #define PTR_SIZE sizeof(word_t)
-#define INCREMENT_PTR(ptr) ptr + 1
+#define INCREMENT_PTR(ptr) (ptr + 1)
 using word_t = intptr_t ;
 
 // TODO constexpr it
@@ -55,6 +55,7 @@ ObjectAllocator::ObjectAllocator(size_t ObjectSize, const OAConfig &config)
 	//this->stats.PageSize_ = sizeof(word_t) + ObjectSize * config.ObjectsPerPage_ +
 	//	config.HBlockInfo_.size_ * config.ObjectsPerPage_ + config.PadBytes_ * 2_z * config.ObjectsPerPage_;
 	this->stats.PageSize_ = headerSize + dataSize * (configuration.ObjectsPerPage_ - 1) + ObjectSize + config.PadBytes_;
+	this->totalDataSize = dataSize * (configuration.ObjectsPerPage_ - 1) + ObjectSize + config.PadBytes_;
 	this->configuration = config;
 	
 	unsigned interSize = ObjectSize + this->configuration.PadBytes_ * 2_z + this->configuration.HBlockInfo_.size_;
@@ -67,22 +68,22 @@ ObjectAllocator::~ObjectAllocator()
 	// We will need to call the destructor for every active object, and then
 	// free the entire page
 	// Walk the pages
-	//GenericObject* page = this->PageList_;
-	//while(page != nullptr)
-	//{
-	//	GenericObject* next = page->Next;
-	//	// Free external headers.
-	//	if(this->configuration.HBlockInfo_.type_ == OAConfig::hbExternal)
-	//	{
-	//		unsigned char* headerAddr = reinterpret_cast<unsigned char*>(page) + this->headerSize;
-	//		for(unsigned i = 0; i < configuration.ObjectsPerPage_; i++)
-	//		{
-	//			freeHeader(reinterpret_cast<GenericObject*>(headerAddr), OAConfig::hbExternal);
-	//		}
-	//	}
-	//	delete[] reinterpret_cast<unsigned char*>(page);
-	//	page = next;
-	//}
+	GenericObject* page = this->PageList_;
+	while(page != nullptr)
+	{
+		GenericObject* next = page->Next;
+		// Free external headers.
+		if(this->configuration.HBlockInfo_.type_ == OAConfig::hbExternal)
+		{
+			unsigned char* headerAddr = reinterpret_cast<unsigned char*>(page) + this->headerSize;
+			for(unsigned i = 0; i < configuration.ObjectsPerPage_; i++)
+			{
+				freeHeader(reinterpret_cast<GenericObject*>(headerAddr), OAConfig::hbExternal, true);
+			}
+		}
+		delete[] reinterpret_cast<unsigned char*>(page);
+		page = next;
+	}
 }
 
 void* ObjectAllocator::Allocate(const char* label)
@@ -255,7 +256,7 @@ void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
 	else
 	{
 		// DEBUG TODO REMOVE LATER
-		if (!(stats.PagesInUse_ < configuration.MaxPages_))
+		if (stats.PagesInUse_ >= configuration.MaxPages_)
 			throw std::exception();
 		// Allocate a new page.
 		GenericObject* newPage = allocate_new_page(this->stats.PageSize_);
@@ -272,7 +273,7 @@ void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
 		// Set everything to unallocated.
 		if (this->configuration.DebugOn_)
 		{
-			memset(DataStartAddress, UNALLOCATED_PATTERN, this->dataSize * this->configuration.ObjectsPerPage_);
+			memset(DataStartAddress, UNALLOCATED_PATTERN, totalDataSize);
 		}
 		
 		// For each start of the data...
@@ -303,7 +304,7 @@ GenericObject* ObjectAllocator::allocate_new_page(size_t pageSize)
 		++this->stats.PagesInUse_;
 		return newObj;
 	}
-	catch (std::bad_alloc exception)
+	catch (std::bad_alloc& exception)
 	{
 		throw OAException(OAException::OA_EXCEPTION::E_NO_MEMORY, "OA out of mem!");
 	}
@@ -328,7 +329,7 @@ void ObjectAllocator::incrementStats()
 	++this->stats.Allocations_;
 }
 
-void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType)
+void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, bool ignoreThrow)
 {
 	unsigned char* headerAddr = toHeader(Object);
 	switch (headerType)
@@ -337,7 +338,7 @@ void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE he
 	{
 		// We check if it has been freed by checking the last byte of the object and comparing
 		// to 0xCC
-		if (this->configuration.DebugOn_)
+		if (this->configuration.DebugOn_ && !ignoreThrow)
 		{
 			unsigned char* lastChar = reinterpret_cast<unsigned char*>(Object) + stats.ObjectSize_ - 1;
 			if (*lastChar == ObjectAllocator::FREED_PATTERN)
@@ -348,7 +349,7 @@ void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE he
 	case OAConfig::hbBasic:
 	{
 		// Check if the bit is already free
-		if (this->configuration.DebugOn_)
+		if (this->configuration.DebugOn_ && !ignoreThrow)
 		{
 			if (0 == *(headerAddr + sizeof(unsigned)))
 				throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
@@ -359,7 +360,7 @@ void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE he
 	}
 	case OAConfig::hbExtended:
 	{
-		if (this->configuration.DebugOn_)
+		if (this->configuration.DebugOn_ && !ignoreThrow)
 		{
 			if (0 == *(headerAddr + sizeof(unsigned) + this->configuration.HBlockInfo_.additional_
 				+ sizeof(unsigned short)))
@@ -374,7 +375,7 @@ void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE he
 		// Free the external values
 			
 		MemBlockInfo** info = reinterpret_cast<MemBlockInfo**>(headerAddr);
-		if(nullptr == *info	&& this->configuration.DebugOn_)
+		if(nullptr == *info	&& this->configuration.DebugOn_ && !ignoreThrow)
 			throw OAException(OAException::E_MULTIPLE_FREE, "Multiple free!");
 		delete *info;
 		*info = nullptr;

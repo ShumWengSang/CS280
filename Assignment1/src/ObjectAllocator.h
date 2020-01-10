@@ -153,7 +153,7 @@ public:
 
     // Take an object from the free list and give it to the client (simulates new)
     // Throws an exception if the object can't be allocated. (Memory allocation problem)
-    void *Allocate(const char *label = 0);
+    void *Allocate(const char *label = nullptr);
 
     // Returns an object to the free list for the client (simulates delete)
     // Throws an exception if the the object can't be freed. (Invalid object)
@@ -184,6 +184,7 @@ private:
 	OAConfig configuration;
 	size_t headerSize; // Post alignment and padding
 	size_t dataSize;  // Post alignment and padding
+    size_t totalDataSize; // size of the data side of things.
     GenericObject *PageList_ = nullptr;           // the beginning of the list of pages
     GenericObject *FreeList_ = nullptr;           // the beginning of the list of objects
     void allocate_new_page_safe(GenericObject* &PageList);       // allocates another page of objects with checking
@@ -194,7 +195,7 @@ private:
 	// For allocate
 	void incrementStats();
 
-	void freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType);
+	void freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, bool ignoreThrow = false);
 	// Given an addr, creates a handle at that point according to header type and config
 	void updateHandle(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, const char* label = nullptr);
 	// Builds a header when initialized from page. No checks
