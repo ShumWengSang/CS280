@@ -52,8 +52,9 @@ ObjectAllocator::ObjectAllocator(size_t ObjectSize, const OAConfig &config)
 	this->dataSize = align(ObjectSize + config.PadBytes_ * 2_z + config.HBlockInfo_.size_, config.Alignment_);
 	this->stats.ObjectSize_ = ObjectSize;
 	// Page size = Pointer + objs + headers + padding
-	this->stats.PageSize_ = sizeof(word_t) + ObjectSize * config.ObjectsPerPage_ +
-		config.HBlockInfo_.size_ * config.ObjectsPerPage_ + config.PadBytes_ * 2_z * config.ObjectsPerPage_;
+	//this->stats.PageSize_ = sizeof(word_t) + ObjectSize * config.ObjectsPerPage_ +
+	//	config.HBlockInfo_.size_ * config.ObjectsPerPage_ + config.PadBytes_ * 2_z * config.ObjectsPerPage_;
+	this->stats.PageSize_ = headerSize + dataSize * (configuration.ObjectsPerPage_ - 1) + ObjectSize + config.PadBytes_;
 	this->configuration = config;
 	
 	unsigned interSize = ObjectSize + this->configuration.PadBytes_ * 2_z + this->configuration.HBlockInfo_.size_;
