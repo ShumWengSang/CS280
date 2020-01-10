@@ -203,7 +203,7 @@ private:
 	void buildExternalHeader(GenericObject* Object, const char* label);
 	// Called when allocate. Builds the extended header
 	void buildExtendedHeader(GenericObject* Object);
-	void ObjectAllocator::check_boundary_full(unsigned char* addr);
+	void check_boundary_full(unsigned char* addr);
 
     // Check padding
 	bool checkPadding(unsigned char* paddingAddr, size_t size);

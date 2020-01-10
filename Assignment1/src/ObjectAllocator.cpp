@@ -1,5 +1,6 @@
 #include "ObjectAllocator.h"
 #include <cstdint>
+#include <cstring>
 // Makes things a size_t
 constexpr size_t operator "" _z(unsigned long long n)
 {
@@ -254,7 +255,7 @@ void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
 	{
 		// DEBUG TODO REMOVE LATER
 		if (!(stats.PagesInUse_ < configuration.MaxPages_))
-			throw std::exception("WHAT IS GOING ON HERE?");
+			throw std::exception();
 		// Allocate a new page.
 		GenericObject* newPage = allocate_new_page(this->stats.PageSize_);
 
