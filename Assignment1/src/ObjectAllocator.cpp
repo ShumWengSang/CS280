@@ -245,24 +245,38 @@ unsigned ObjectAllocator::ValidatePages(VALIDATECALLBACK fn) const
 
 unsigned ObjectAllocator::FreeEmptyPages()
 {
-	// Iterate through every page
+	if (this->PageList_ == nullptr)
+		return 0;
+
 	unsigned emptyPages = 0;
-	GenericObject* tmp;
-	GenericObject* head = this->PageList_;
-	while (head != NULL)
+
+	// Store head node 
+	GenericObject* temp = this->PageList_;
+
+	// If head needs to be removed 
+	if (position == 0)
 	{
-		tmp = head;
-		head = head->Next;
-
-		if(isPageEmpty(temp))
-		{
-			free(tmp);
-			emptyPages++;
-		}
-		
-
+		*head_ref = temp->next;   // Change head 
+		free(temp);               // free old head 
+		return;
 	}
-	return emptyPages;
+
+	// Find previous node of the node to be deleted 
+	for (int i = 0; temp != NULL && i < position - 1; i++)
+		temp = temp->next;
+
+	// If position is more than number of ndoes 
+	if (temp == NULL || temp->next == NULL)
+		return;
+
+	// Node temp->next is the node to be deleted 
+	// Store pointer to the next of node to be deleted 
+	GenericObject* next = temp->next->next;
+
+	// Unlink the node from linked list 
+	free(temp->next);  // Free memory 
+
+	temp->next = next;  // Unlink the deleted node from list 
 }
 
 bool ObjectAllocator::ImplementedExtraCredit()
@@ -529,6 +543,23 @@ bool ObjectAllocator::isInPage(GenericObject* pageAddr, unsigned char* addr) con
 {
 	return (addr >= reinterpret_cast<unsigned char*>(pageAddr) &&
 		addr < reinterpret_cast<unsigned char*>(pageAddr) + stats.PageSize_);
+}
+
+bool ObjectAllocator::isPageEmpty(GenericObject* page) const
+{
+	// Walk though the linked list.
+	GenericObject* freeList = this->FreeList_;
+	unsigned freeInPage = 0;
+	while (freeList)
+	{
+		if (isInPage(page, reinterpret_cast<unsigned char*>(freeList)))
+		{
+			if (++freeInPage >= configuration.ObjectsPerPage_)
+				return true;
+		}
+		freeList = freeList->Next;
+	}
+	return false;
 }
 
 void ObjectAllocator::updateHandle(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, const char* label)
