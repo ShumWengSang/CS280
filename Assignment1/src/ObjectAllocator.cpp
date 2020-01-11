@@ -1,6 +1,6 @@
 #include "ObjectAllocator.h"
-#include <cstdint>
-#include <cstring>
+#include <cstdint> //size_t 
+#include <cstring> // strlen, memset
 // Makes things a size_t
 constexpr size_t operator "" _z(unsigned long long n)
 {
@@ -44,19 +44,15 @@ MemBlockInfo::~MemBlockInfo()
 	delete[] label;
 }
 
-ObjectAllocator::ObjectAllocator(size_t ObjectSize, const OAConfig &config)
+ObjectAllocator::ObjectAllocator(size_t ObjectSize, const OAConfig &config) : configuration(config)
 {
 	// TODO: Put this in constructor 
     // First we have to calculate all the stats
 	this->headerSize = align(sizeof(word_t) + config.HBlockInfo_.size_ + config.PadBytes_, config.Alignment_);
 	this->dataSize = align(ObjectSize + config.PadBytes_ * 2_z + config.HBlockInfo_.size_, config.Alignment_);
 	this->stats.ObjectSize_ = ObjectSize;
-	// Page size = Pointer + objs + headers + padding
-	//this->stats.PageSize_ = sizeof(word_t) + ObjectSize * config.ObjectsPerPage_ +
-	//	config.HBlockInfo_.size_ * config.ObjectsPerPage_ + config.PadBytes_ * 2_z * config.ObjectsPerPage_;
-	this->stats.PageSize_ = headerSize + dataSize * (configuration.ObjectsPerPage_ - 1) + ObjectSize + config.PadBytes_;
+	this->stats.PageSize_ = headerSize + dataSize * (config.ObjectsPerPage_ - 1) + ObjectSize + config.PadBytes_;
 	this->totalDataSize = dataSize * (configuration.ObjectsPerPage_ - 1) + ObjectSize + config.PadBytes_;
-	this->configuration = config;
 	
 	unsigned interSize = ObjectSize + this->configuration.PadBytes_ * 2_z + this->configuration.HBlockInfo_.size_;
 	this->configuration.InterAlignSize_ = align(interSize, this->configuration.Alignment_) - interSize;
@@ -149,11 +145,11 @@ void ObjectAllocator::Free(void* Object)
 	{
 		check_boundary_full(reinterpret_cast<unsigned char*>(Object));
 		{
-			if (!checkPadding(toLeftPad(object), this->configuration.PadBytes_))
+			if (!isPaddingCorrect(toLeftPad(object), this->configuration.PadBytes_))
 			{
 				throw OAException(OAException::E_CORRUPTED_BLOCK, "Bad boundary.");
 			}
-			if (!checkPadding(toRightPad(object), this->configuration.PadBytes_))
+			if (!isPaddingCorrect(toRightPad(object), this->configuration.PadBytes_))
 			{
 				throw OAException(OAException::E_CORRUPTED_BLOCK, "Bad boundary.");
 			}
@@ -186,14 +182,30 @@ unsigned ObjectAllocator::DumpMemoryInUse(DUMPCALLBACK fn) const
 	}
 	else 
 	{
+		unsigned memInUse = 0;
 		// walk to the end, while calling the fn for each page.
 		GenericObject* last = PageList_;
-		while (last->Next)
+		while (last)
 		{
-			fn(last, stats.PageSize_);
+			unsigned char* block = reinterpret_cast<unsigned char*>(last);
+			// Move to the first data block.
+			block += this->headerSize;
+
+			// For each data
+			for (unsigned i = 0; i < configuration.ObjectsPerPage_; ++i)
+			{
+				GenericObject* objectData = reinterpret_cast<GenericObject*>(block + i * dataSize);
+				// Check if mem is in use.
+				if (checkData(objectData, ALLOCATED_PATTERN))
+				{
+					fn(objectData, stats.ObjectSize_);
+					++memInUse;
+				}
+			}
+
 			last = last->Next;
 		}
-		return this->stats.PagesInUse_;
+		return memInUse;
 	}
 }
 
@@ -201,21 +213,61 @@ unsigned ObjectAllocator::ValidatePages(VALIDATECALLBACK fn) const
 {
 	if (!configuration.DebugOn_ || !configuration.PadBytes_)
 		return 0;
+	unsigned corruptedBlocks = 0;
+
 	//You need to walk each of the pages in the page list checking
 	// the pad bytes of each block (free or not).
+	GenericObject* last = PageList_;
+	while (last)
+	{
+		unsigned char* block = reinterpret_cast<unsigned char*>(last);
+		// Move to the first data block.
+		block += this->headerSize;
+
+		// For each data
+		for(unsigned i = 0; i < configuration.ObjectsPerPage_; ++i)
+		{
+			GenericObject* objectData = reinterpret_cast<GenericObject*>(block + i * dataSize);
+			// Validate the left and right pad
+			if(!isPaddingCorrect(toLeftPad(objectData), configuration.PadBytes_) || 
+				!isPaddingCorrect(toRightPad(objectData), configuration.PadBytes_))
+			{
+				fn(objectData, stats.ObjectSize_);
+				++corruptedBlocks;
+				continue;
+			}
+		}
+		last = last->Next;
+	}
 	
-	
-	return 0;
+	return corruptedBlocks;
 }
 
 unsigned ObjectAllocator::FreeEmptyPages()
 {
-	return 0;
+	// Iterate through every page
+	unsigned emptyPages = 0;
+	GenericObject* tmp;
+	GenericObject* head = this->PageList_;
+	while (head != NULL)
+	{
+		tmp = head;
+		head = head->Next;
+
+		if(isPageEmpty(temp))
+		{
+			free(tmp);
+			emptyPages++;
+		}
+		
+
+	}
+	return emptyPages;
 }
 
 bool ObjectAllocator::ImplementedExtraCredit()
 {
-	return false;
+	return true;
 }
 
 void ObjectAllocator::SetDebugState(bool State)
@@ -261,6 +313,11 @@ void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
 		// Allocate a new page.
 		GenericObject* newPage = allocate_new_page(this->stats.PageSize_);
 
+		if (this->configuration.DebugOn_)
+		{
+			memset(newPage, ALIGN_PATTERN, this->stats.PageSize_);
+		}
+		
 		// Link it up to the page list.
 		InsertHead(LPageList, newPage);
 
@@ -269,12 +326,6 @@ void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
 		unsigned char* PageStartAddress = reinterpret_cast<unsigned char*>(newPage);
 		unsigned char* DataStartAddress = PageStartAddress + this->headerSize;
 
-		
-		// Set everything to unallocated.
-		if (this->configuration.DebugOn_)
-		{
-			memset(DataStartAddress, UNALLOCATED_PATTERN, totalDataSize);
-		}
 		
 		// For each start of the data...
 		for (; (DataStartAddress - PageStartAddress) < this->stats.PageSize_; DataStartAddress += this->dataSize)
@@ -287,7 +338,9 @@ void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
 
 			if (this->configuration.DebugOn_)
 			{
+				unsigned t = sizeof(word_t);
 				// Update padding sig
+				memset(reinterpret_cast<unsigned char*>(dataAddress) + sizeof(word_t), UNALLOCATED_PATTERN, this->stats.ObjectSize_ - sizeof(word_t));
 				memset(toLeftPad(dataAddress), PAD_PATTERN, this->configuration.PadBytes_);
 				memset(toRightPad(dataAddress), PAD_PATTERN, this->configuration.PadBytes_);
 			}
@@ -423,13 +476,12 @@ void ObjectAllocator::buildExtendedHeader(GenericObject* Object)
 	*flag = true;
 }
 
-void ObjectAllocator::check_boundary_full(unsigned char* addr)
+void ObjectAllocator::check_boundary_full(unsigned char* addr) const
 {
 		// Find the page the object rests in.
 		GenericObject* pageList = this->PageList_;
 		// While loop stops when addr resides within the page.
-		while(!(addr >= reinterpret_cast<unsigned char*>(pageList) &&
-			addr < reinterpret_cast<unsigned char*>(pageList) + stats.PageSize_))
+		while(!isInPage(pageList, addr))
 		{
 			pageList = pageList->Next;
 			// If its not in our pages, its not our memory.
@@ -452,16 +504,31 @@ void ObjectAllocator::check_boundary_full(unsigned char* addr)
 
 }
 
-bool ObjectAllocator::checkPadding(unsigned char* paddingAddr, size_t size)
+bool ObjectAllocator::isPaddingCorrect(unsigned char* paddingAddr, size_t size) const
 {
-
-	
 	for(size_t i = 0; i < size; ++i)
 	{
 		if (*(paddingAddr + i) != ObjectAllocator::PAD_PATTERN)
 			return false;
 	}
 	return true;
+}
+
+bool ObjectAllocator::checkData(GenericObject* objectdata, const unsigned char pattern) const
+{
+	unsigned char* data = reinterpret_cast<unsigned char*>(objectdata);
+	for(size_t i = 0; i < stats.ObjectSize_; ++i)
+	{
+		if (data[i] == pattern)
+			return true;
+	}
+	return false;
+}
+
+bool ObjectAllocator::isInPage(GenericObject* pageAddr, unsigned char* addr) const
+{
+	return (addr >= reinterpret_cast<unsigned char*>(pageAddr) &&
+		addr < reinterpret_cast<unsigned char*>(pageAddr) + stats.PageSize_);
 }
 
 void ObjectAllocator::updateHandle(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, const char* label)
@@ -488,17 +555,17 @@ void ObjectAllocator::updateHandle(GenericObject* Object, OAConfig::HBLOCK_TYPE 
 	}
 }
 
- unsigned char* ObjectAllocator::toHeader(GenericObject* obj)
+ unsigned char* ObjectAllocator::toHeader(GenericObject* obj) const
 {
 	return reinterpret_cast<unsigned char*>(obj) - this->configuration.PadBytes_ - this->configuration.HBlockInfo_.size_;
 }
 
-unsigned char* ObjectAllocator::toLeftPad(GenericObject* obj)
+unsigned char* ObjectAllocator::toLeftPad(GenericObject* obj) const
 {
 	return reinterpret_cast<unsigned char*>(obj) - this->configuration.PadBytes_;
 }
 
-unsigned char* ObjectAllocator::toRightPad(GenericObject* obj)
+unsigned char* ObjectAllocator::toRightPad(GenericObject* obj) const
 {
 	return reinterpret_cast<unsigned char*>(obj) + this->stats.ObjectSize_;
 }

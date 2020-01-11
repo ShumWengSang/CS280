@@ -204,15 +204,19 @@ private:
 	void buildExternalHeader(GenericObject* Object, const char* label);
 	// Called when allocate. Builds the extended header
 	void buildExtendedHeader(GenericObject* Object);
-	void check_boundary_full(unsigned char* addr);
-
+	// Check boundaries full check. Slower
+	void check_boundary_full(unsigned char* addr) const;
+	
     // Check padding
-	bool checkPadding(unsigned char* paddingAddr, size_t size);
+	bool isPaddingCorrect(unsigned char* paddingAddr, size_t size) const;
+	bool checkData(GenericObject* objectdata, const unsigned char pattern) const;
+	bool isInPage(GenericObject* pageAddr, unsigned char* addr) const;
+	bool isPageEmpty(GenericObject* page) const;
 
 	// Given an address to an object, returns the address of the object's header file.
-	unsigned char* toHeader(GenericObject* obj);
-	unsigned char* toLeftPad(GenericObject* obj);
-	unsigned char* toRightPad(GenericObject* obj);
+	unsigned char* toHeader(GenericObject* obj) const;
+	unsigned char* toLeftPad(GenericObject* obj)const;
+	unsigned char* toRightPad(GenericObject* obj)const;
 
 	
     // Make private to prevent copy construction and assignment
