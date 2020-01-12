@@ -249,34 +249,39 @@ unsigned ObjectAllocator::FreeEmptyPages()
 		return 0;
 
 	unsigned emptyPages = 0;
+	
+	GenericObject* current, ** previous;       // pointer *s are connected to vars
 
-	// Store head node 
-	GenericObject* temp = this->PageList_;
+	previous = &this->PageList_;
+	current = this->PageList_;
 
-	// If head needs to be removed 
-	if (position == 0)
+	while ((current != nullptr))
 	{
-		*head_ref = temp->next;   // Change head 
-		free(temp);               // free old head 
-		return;
+		if(isPageEmpty(current))
+		{
+			// We will need to update the freelist pointers.
+			removePageObjs_from_freelist(current);
+
+			// Then we delete this and fix up the pointers.
+			GenericObject* temp = current->Next;
+			delete [] reinterpret_cast<unsigned char*>(current);
+
+			// Advance current forward
+			current = temp;
+			// Fix the pointer from previous to current
+			if(*previous != nullptr)
+				(*previous)->Next = current;
+		}
+		else
+		{
+			// Update pointers to continue walking.
+			previous = &current->Next;
+			current = current->Next;
+		}
+
 	}
 
-	// Find previous node of the node to be deleted 
-	for (int i = 0; temp != NULL && i < position - 1; i++)
-		temp = temp->next;
-
-	// If position is more than number of ndoes 
-	if (temp == NULL || temp->next == NULL)
-		return;
-
-	// Node temp->next is the node to be deleted 
-	// Store pointer to the next of node to be deleted 
-	GenericObject* next = temp->next->next;
-
-	// Unlink the node from linked list 
-	free(temp->next);  // Free memory 
-
-	temp->next = next;  // Unlink the deleted node from list 
+	
 }
 
 bool ObjectAllocator::ImplementedExtraCredit()
@@ -384,6 +389,31 @@ void ObjectAllocator::put_on_freelist(GenericObject* Object)
 	Object->Next = temp;
 
 	this->stats.FreeObjects_++;
+}
+
+void ObjectAllocator::removePageObjs_from_freelist(GenericObject* pageAddr)
+{
+	// Move through the freelist
+	GenericObject** previous = &this->FreeList_;
+	GenericObject* current = this->FreeList_;
+
+	while ((current != nullptr))
+	{
+		if (isInPage(pageAddr, reinterpret_cast<unsigned char*>(current)))
+		{
+			// We just move the current to next, and the previous to point to current
+			current = current->Next;
+			if(*previous != nullptr)
+				(*previous)->Next = current;
+		}
+		else
+		{
+			// Update pointers to continue walking.
+			previous = &current->Next;
+			current = current->Next;
+		}
+
+	}
 }
 
 void ObjectAllocator::incrementStats()
@@ -625,3 +655,24 @@ OAConfig::OAConfig(bool UseCPPMemManager, unsigned int ObjectsPerPage, unsigned 
 	LeftAlignSize_ = align(leftHeaderSize, this->Alignment_) - leftHeaderSize;
 }
 
+void ObjectAllocator::LinkedListDelete(GenericObject** head, GenericObject* node)
+{
+	GenericObject* current, ** previous;       // pointer *s are connected to vars
+
+	previous = head;
+	current = *head;
+
+	while ((current != nullptr) && (node != current))
+	{                                    // indentation inside nested scope
+		previous = &current->Next;        // no space for unary operators like &
+		current = current->Next;         // assignments justified to same level
+	}
+
+	if (current != nullptr)
+	{
+		*previous = current->Next;        // no space for unary *, space for =
+		delete current;
+	}
+
+	return;
+}

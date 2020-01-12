@@ -191,7 +191,10 @@ private:
 	GenericObject* allocate_new_page(size_t pageSize);			// Calls the actual new for the page.
     void put_on_freelist(GenericObject*Object); // puts Object onto the free list
 
-
+	// Given a page address, removes all the objects in it from the freelist
+	void removePageObjs_from_freelist(GenericObject* pageAddr);
+	void LinkedListDelete(GenericObject** head, GenericObject* node);
+	
 	// For allocate
 	void incrementStats();
 
