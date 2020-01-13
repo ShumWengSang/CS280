@@ -1,21 +1,80 @@
+/******************************************************************************/
+/*!
+\file   ObjectAllocator.cpp
+\author Roland Shum
+\par    email: roland.shum\@digipen.edu
+\par    DigiPen login: roland.shum
+\par    Course: CS280
+\par    Assignment #1
+\date   1/24/2020
+\brief
+  This is the interface for the Object Allocator and its accompanying classes.
+  This includes OAConfig, MemBlockInfo, and ObjectAllocator.
+
+  ObjectAllocator Functions
+  - Constructor
+  - Destructor
+  - Allocate
+  - Free
+  - Debug functions:
+    - DumpMemoryInUse
+    - ValidePages
+    - FreeEmptyPages
+    - SetDebugState
+    - GetFreeList
+    - GetPageList
+    - GetConfig
+    - GetStats
+  
+  OAConfig
+  - Constructor
+
+  MemBlockInfo
+  - Constructor
+*/
+/******************************************************************************/
 #include "ObjectAllocator.h"
 #include <cstdint>   // size_t 
 #include <cstring>   // strlen, memset
 
-#define PTR_SIZE sizeof(word_t)
-#define INCREMENT_PTR(ptr) (ptr + 1)
+#define PTR_SIZE sizeof(word_t)      //! Size of a pointer.
+#define INCREMENT_PTR(ptr) (ptr + 1) //! Move the pointer by one
 
-// A word is a pointer
+//! A word is a pointer
 using word_t = intptr_t ;
 
-// Makes things a size_t
+/******************************************************************************/
+/*!
+
+  Pass in a literal to convert it to a size_t type. Example: 2_z; Similar
+  to how 2.0f is a float.
+   
+  \param n
+    A number to turn into size_t type in compile time.
+  \return
+    Returns n in size_t type.
+*/
+/******************************************************************************/
 constexpr size_t operator "" _z(unsigned long long n)
 {
     return n;
 }
 
-// TODO constexpr it
-// Given a size and an alignment, returns the size after it has been aligned.
+/******************************************************************************/
+/*!
+
+  Given a size and an alignment, returns the size after it has been aligned.
+  Ex: Given a size of 7 and align of 8, returns 8. If size of 11, align of 8,
+  returns 16.
+
+  \param n
+    The size to align
+  \param align
+    The power of size to align to.
+  \return 
+    Returns n, expanded so that it aligns with align
+*/
+/******************************************************************************/
 constexpr size_t align(size_t n, size_t align)
 {
     if (!align)
@@ -24,6 +83,17 @@ constexpr size_t align(size_t n, size_t align)
     return align * ((n / align) + remainder);
 }
 
+/******************************************************************************/
+/*!
+
+  Constructor for the mem block info.
+
+  \param alloc_num_
+    The allocation number/ID.
+  \param label
+    C string to identify the header / data block.
+*/
+/******************************************************************************/
 MemBlockInfo::MemBlockInfo(unsigned alloc_num_, const char* label_): in_use(true),
     alloc_num(alloc_num_), label(nullptr)
 {
@@ -42,11 +112,32 @@ MemBlockInfo::MemBlockInfo(unsigned alloc_num_, const char* label_): in_use(true
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Destructor for MemBlockInfo. Deletes the C-string array
+
+*/
+/******************************************************************************/
 MemBlockInfo::~MemBlockInfo()
 {
     delete[] label;
 }
 
+/******************************************************************************/
+/*!
+
+  Constructor for Object Allocator. Determines stats and allocates inital page
+  of memory.
+
+  /param ObjectSize
+    The size of each object that the allocator allocates.
+  /param config
+    An instance of OAConfig that determines the configuration of the Object
+    Allocator
+
+*/
+/******************************************************************************/
 ObjectAllocator::ObjectAllocator(size_t ObjectSize, const OAConfig &config) : configuration(config)
 {
     // TODO: Put this in constructor 
@@ -62,6 +153,13 @@ ObjectAllocator::ObjectAllocator(size_t ObjectSize, const OAConfig &config) : co
     allocate_new_page_safe(this->PageList_);
 }
 
+/******************************************************************************/
+/*!
+
+  Destructor for Object Allocator. Removes pages.
+
+*/
+/******************************************************************************/
 ObjectAllocator::~ObjectAllocator()
 {
     // We will need to call the destructor for every active object, and then
@@ -85,6 +183,27 @@ ObjectAllocator::~ObjectAllocator()
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Given a label, allocates memory from the page and returns it to the user.
+  If UseCPPMemManager is true, bypasses OA and use new.
+  
+  
+  \param label
+    Label to pass to the external header to keep track of.
+
+  \return
+    Pointer to block of memory to use.
+  
+  \exception OAException
+    Exception contains the type of exception it is. Possible types are
+    -OAException::E_NO_MEMORY -- signifies no more memory from OS
+    -OAException::E_NO_PAGES  -- There are no more memory in the pages to use,
+                                 and the configuration also does not allow more
+                                 memory.
+*/
+/******************************************************************************/
 void* ObjectAllocator::Allocate(const char* label)
 {
     //If we are not using the mem manager.
@@ -122,16 +241,35 @@ void* ObjectAllocator::Allocate(const char* label)
     }
     incrementStats();
     // Update header
-    updateHandle(objectToGive, configuration.HBlockInfo_.type_, label);
+    updateHeader(objectToGive, configuration.HBlockInfo_.type_, label);
     
     
     // Return the object
     return objectToGive;
 }
 
+/******************************************************************************/
+/*!
+
+  Given a block of memory given by Allocate(), returns the memory back to the
+  Object Allocator.  If UseCPPMemManager is true, bypasses OA and use delete.
+  If debugOn is True, will perform checking to see if the block is corrupted 
+  and within the same boundaries.
+
+  \param Object
+    Pointer to object allocated by Allocate().
+  \exception OAException
+    Exception contains the type of exception it is. Possible types are
+    -OAException::E_CORRUPTED_BLOCK -- The memory block is corrupted.
+    -OAException::E_BAD_BOUNDARY    -- The Object given is not aligned properly.
+                                       Possibly wrong object.
+*/
+/******************************************************************************/
 void ObjectAllocator::Free(void* Object)
 {
+    // Increment Deallocation count
     ++this->stats.Deallocations_;
+
     //If we are not using the mem manager.
     if (this->configuration.UseCPPMemManager_) 
     {
@@ -175,6 +313,18 @@ void ObjectAllocator::Free(void* Object)
     --this->stats.ObjectsInUse_;
 }
 
+/******************************************************************************/
+/*!
+
+  Debug Function: Walks through the pages in the OA and calls the given 
+  function if the blocks of data are active
+
+  \parem fn
+    Function to call for each active object
+  \return
+    Number of active objects
+*/
+/******************************************************************************/
 unsigned ObjectAllocator::DumpMemoryInUse(DUMPCALLBACK fn) const
 {
     // Walk through each page, and dump it.
@@ -194,17 +344,23 @@ unsigned ObjectAllocator::DumpMemoryInUse(DUMPCALLBACK fn) const
             // Move to the first data block.
             block += this->headerSize;
 
-            // For each data
-            for (unsigned i = 0; i < configuration.ObjectsPerPage_; ++i)
-            {
-                GenericObject* objectData = reinterpret_cast<GenericObject*>(block + i * dataSize);
-                // Check if mem is in use.
-                if (checkData(objectData, ALLOCATED_PATTERN))
+			// For each data
+			for (unsigned i = 0; i < configuration.ObjectsPerPage_; ++i)
+			{
+				GenericObject* objectData = reinterpret_cast<GenericObject*>(block + i * dataSize);
+
+                if (isObjectAllocated(objectData))
                 {
-                    fn(objectData, stats.ObjectSize_);
-                    ++memInUse;
+					fn(objectData, stats.ObjectSize_);
+					++memInUse;
                 }
-            }
+				// Check if mem is in use. By using slower checkData function
+				//if (checkData(objectData, ALLOCATED_PATTERN))
+				//{
+				//	fn(objectData, stats.ObjectSize_);
+				//	++memInUse;
+				//}
+			}
 
             last = last->Next;
         }
@@ -212,6 +368,18 @@ unsigned ObjectAllocator::DumpMemoryInUse(DUMPCALLBACK fn) const
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Debug Function: Walks through each page and verifies if each data block is
+  corrupted or not.
+
+  \param fn
+    Function to call once a data block is identified to be corrupted.
+  \return
+    Number of corrupted data blocks.
+*/
+/******************************************************************************/
 unsigned ObjectAllocator::ValidatePages(VALIDATECALLBACK fn) const
 {
     if (!configuration.DebugOn_ || !configuration.PadBytes_)
@@ -246,11 +414,21 @@ unsigned ObjectAllocator::ValidatePages(VALIDATECALLBACK fn) const
     return corruptedBlocks;
 }
 
+/******************************************************************************/
+/*!
+
+  Debug Function: Walks through each page and checks if the page is empty.
+  If it is, returns the memory of the page back to the OS.
+
+  \return
+    The number of pages freed.
+*/
+/******************************************************************************/
 unsigned ObjectAllocator::FreeEmptyPages()
 {
     if (this->PageList_ == nullptr)
         return 0;
-
+    // Return value
     unsigned emptyPages = 0;
     
     // Store head node 
@@ -290,6 +468,14 @@ unsigned ObjectAllocator::FreeEmptyPages()
     return emptyPages;
 }
 
+/******************************************************************************/
+/*!
+
+  Given a page, frees it from memory by returning it to the OS. It first
+  removes all the datablocks from the freelist, and decrements the stat counter.
+  
+*/
+/******************************************************************************/
 void ObjectAllocator::freePage(GenericObject* temp)
 {
     removePageObjs_from_freelist(temp);
@@ -298,37 +484,105 @@ void ObjectAllocator::freePage(GenericObject* temp)
     
 }
 
+/******************************************************************************/
+/*!
+
+  Does this OA implement extra credit? (Hint: Yes)
+
+  \return
+    Returns true if implemented. False otherwise.
+*/
+/******************************************************************************/
 bool ObjectAllocator::ImplementedExtraCredit()
 {
     return true;
 }
 
+/******************************************************************************/
+/*!
+
+  Given a debug state, sets the current OA to that debug state.
+  
+  \param State
+    True to turn on Debug, False to turn off.
+*/
+/******************************************************************************/
 void ObjectAllocator::SetDebugState(bool State)
 {
     this->configuration.DebugOn_ = State;
 }
 
+/******************************************************************************/
+/*!
+
+  Debug Function: Returns the free list, a linked list determining what blocks
+  of memory are free.
+
+  \return
+    The free list.
+*/
+/******************************************************************************/
 const void* ObjectAllocator::GetFreeList() const
 {
     return FreeList_;
 }
 
+/******************************************************************************/
+/*!
+
+  Debug Function: Returns the page list, a linked list that chains all the pages
+  together.
+
+  \return
+    The page list.
+*/
+/******************************************************************************/
 const void* ObjectAllocator::GetPageList() const
 {
     return PageList_;
 }
 
+/******************************************************************************/
+/*!
+
+  Debug Function: Returns a copy of the current configuration
+
+  \return
+    The a copy of the current configuration
+*/
+/******************************************************************************/
 OAConfig ObjectAllocator::GetConfig() const
 {
     return this->configuration;
 }
 
+/******************************************************************************/
+/*!
+
+  Debug Function: Returns a copy of the current stats
+
+  \return
+    The a copy of the current stats
+*/
+/******************************************************************************/
 OAStats ObjectAllocator::GetStats() const
 {
     return this->stats;
 }
 
+/******************************************************************************/
+/*!
 
+  Allocates a new page after checks. Checks if we have hit the max number of 
+  pages we are allowed to allocate.
+
+  \param LPageList
+    A reference to the head of the linked list of the pages.
+  \exceptions OAException
+    OAException::OA_EXCEPTION::E_NO_PAGES  - Ran of out pages to use.
+    OAException::OA_EXCEPTION::E_NO_MEMORY - Signifies no more memory from OS
+*/
+/******************************************************************************/
 void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
 {
     // If we have hit the max amount of pages...
@@ -381,6 +635,19 @@ void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Allocates a page according to the configuration given. No checks are done in
+  regards to pages.
+
+  \param pageSize
+    The total size of the page
+  \exceptions OAException
+    OAException::OA_EXCEPTION::E_NO_MEMORY - Signifies no more memory from OS
+  \return A pointer to the newly allocated page of memory from the OS
+*/
+/******************************************************************************/
 GenericObject* ObjectAllocator::allocate_new_page(size_t pageSize)
 {
     try
@@ -395,6 +662,16 @@ GenericObject* ObjectAllocator::allocate_new_page(size_t pageSize)
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Given an object, places it at the front of the freelist.
+
+  \param Object
+    Object to place on Free List
+
+*/
+/******************************************************************************/
 void ObjectAllocator::put_on_freelist(GenericObject* Object)
 {
     GenericObject* temp = this->FreeList_;
@@ -404,6 +681,17 @@ void ObjectAllocator::put_on_freelist(GenericObject* Object)
     this->stats.FreeObjects_++;
 }
 
+/******************************************************************************/
+/*!
+
+  Given a page, removes all the data blocks in that page from the free list.
+
+  \param pageAddr
+    Pointer to the page that the user wants to remove all blocks from free list
+    from.
+
+*/
+/******************************************************************************/
 void ObjectAllocator::removePageObjs_from_freelist(GenericObject* pageAddr)
 {
     // Store head node 
@@ -440,6 +728,13 @@ void ObjectAllocator::removePageObjs_from_freelist(GenericObject* pageAddr)
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Increment the stats when an Object is allocted.
+
+*/
+/******************************************************************************/
 void ObjectAllocator::incrementStats()
 {
     // Update stats
@@ -450,7 +745,26 @@ void ObjectAllocator::incrementStats()
     ++this->stats.Allocations_;
 }
 
-void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, bool ignoreThrow)
+/******************************************************************************/
+/*!
+
+  Given an object and the current header type configuration, frees the header.
+  If debug is set to true, this function will check for multiple frees
+
+
+  \param Object
+    Object to place on Free List
+  \param headerType
+    Type of header.
+  \param ignoreThrow
+    If true, this function will not throw.
+  \exception OAException
+    OAException::E_MULTIPLE_FREE -- If given block is already freed.
+
+*/
+/******************************************************************************/
+void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType,
+  bool ignoreThrow)
 {
     unsigned char* headerAddr = toHeader(Object);
     switch (headerType)
@@ -506,6 +820,16 @@ void ObjectAllocator::freeHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE he
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Given a pointer to a data block, builds the basic header for that data block.
+  A basic header block consists of 5 bytes. 4 for allocation number, and one flag
+  to determine if the block is allocated or not.
+  \param addr
+    Pointer to data block to build header for
+*/
+/******************************************************************************/
 void ObjectAllocator::buildBasicHeader(GenericObject* addr)
 {
     unsigned char* headerAddr = toHeader(addr);
@@ -516,6 +840,20 @@ void ObjectAllocator::buildBasicHeader(GenericObject* addr)
     *flag = true;
 }
 
+/******************************************************************************/
+/*!
+
+  Given a pointer to a data block, builds the external header for that data block.
+  The external header is a MemBlockInfo
+
+  \param Object
+    Pointer to data block to build header for
+  \param label
+    The label for the external header to hold
+  \exceptions OAException
+    OAException::E_NO_MEMORY -- Thrown if OS is out of memory.
+*/
+/******************************************************************************/
 void ObjectAllocator::buildExternalHeader(GenericObject* Object, const char* label)
 {
     unsigned char* headerAddr = toHeader(Object);
@@ -530,6 +868,17 @@ void ObjectAllocator::buildExternalHeader(GenericObject* Object, const char* lab
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Given a pointer to a data block, builds the extended header for that data block.
+  The extended header adds on to the basic header two more things, a counter and
+  a user specified field.
+
+  \param addr
+    Pointer to data block to build header for
+*/
+/******************************************************************************/
 void ObjectAllocator::buildExtendedHeader(GenericObject* Object)
 {
     unsigned char* headerAddr = toHeader(Object);
@@ -544,6 +893,19 @@ void ObjectAllocator::buildExtendedHeader(GenericObject* Object)
     *flag = true;
 }
 
+/******************************************************************************/
+/*!
+
+  A slower but more throrough check to see if the given object is in a bad
+  boundary. Used to check address from Free. If the object is in a bad boundary,
+  an exception is thrown.
+
+  \param addr
+    The address to check if it is 1) within the page, and 2) a correct address.
+  \exception OAException
+    OAException::E_BAD_BOUNDARY -- Object is in a bad bounday.
+*/
+/******************************************************************************/
 void ObjectAllocator::check_boundary_full(unsigned char* addr) const
 {
         // Find the page the object rests in.
@@ -572,6 +934,19 @@ void ObjectAllocator::check_boundary_full(unsigned char* addr) const
 
 }
 
+/******************************************************************************/
+/*!
+
+  A thorough check to see if the padding surrounding a block is correct.
+
+  \param paddingAddr
+    The address to the start of a padding.
+  \size
+    The size of the padding.
+  \return
+    True if padding is not corrupted, false if not.
+*/
+/******************************************************************************/
 bool ObjectAllocator::isPaddingCorrect(unsigned char* paddingAddr, size_t size) const
 {
     for(size_t i = 0; i < size; ++i)
@@ -582,6 +957,19 @@ bool ObjectAllocator::isPaddingCorrect(unsigned char* paddingAddr, size_t size) 
     return true;
 }
 
+/******************************************************************************/
+/*!
+
+  Given a data block and a pattern, checks if the pattern exists on the data 
+  block.
+
+  \param objectData
+    Address to the data block to check.
+  \param pattern
+    Pattern to check the data block for.
+  \return true if the pattern is in the data, false if not.
+*/
+/******************************************************************************/
 bool ObjectAllocator::checkData(GenericObject* objectdata, const unsigned char pattern) const
 {
     unsigned char* data = reinterpret_cast<unsigned char*>(objectdata);
@@ -593,12 +981,34 @@ bool ObjectAllocator::checkData(GenericObject* objectdata, const unsigned char p
     return false;
 }
 
+/******************************************************************************/
+/*!
+
+  Given a page address and any address, checks if the address is in the page.
+
+  \param pageAddr - Pointer to page 
+  \param addr - Address to check if it is within page.
+  \return true if in page, false if not.
+*/
+/******************************************************************************/
 bool ObjectAllocator::isInPage(GenericObject* pageAddr, unsigned char* addr) const
 {
     return (addr >= reinterpret_cast<unsigned char*>(pageAddr) &&
         addr < reinterpret_cast<unsigned char*>(pageAddr) + stats.PageSize_);
 }
 
+/******************************************************************************/
+/*!
+
+  Given a page, checks if the page is empty by walking through the freelist
+  and checking if there are $(ObjectsPerPage_) free items in a page.
+
+  \param page
+    Page to check if it is empty
+  \return
+    True if page is empty, else false
+*/
+/******************************************************************************/
 bool ObjectAllocator::isPageEmpty(GenericObject* page) const
 {
     // Walk though the linked list.
@@ -616,7 +1026,69 @@ bool ObjectAllocator::isPageEmpty(GenericObject* page) const
     return false;
 }
 
-void ObjectAllocator::updateHandle(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, const char* label)
+/******************************************************************************/
+/*!
+
+  Given an object, checks if it is allocated. If configuration has a header, it
+  would do a header check. Else it would check if the data is in freelist.
+
+  \param object
+    The object to check if it is allocated
+  \return
+    True if allocated, false if not.
+*/
+/******************************************************************************/
+bool ObjectAllocator::isObjectAllocated(GenericObject* object) const
+{
+    switch (this->configuration.HBlockInfo_.type_)
+    {
+    case OAConfig::HBLOCK_TYPE::hbNone:
+    {
+       // Checks if it is in free list.
+      GenericObject* freelist = this->FreeList_;
+      while (freelist != nullptr)
+      {
+        if (freelist == object)
+          return true;
+        freelist = freelist->Next;
+      }
+      return false;
+    }
+    case OAConfig::HBLOCK_TYPE::hbBasic:
+    case OAConfig::HBLOCK_TYPE::hbExtended:
+    {
+        // Checks the flag bit.
+        unsigned char* flagByte = reinterpret_cast<unsigned char*>(object) - configuration.PadBytes_ - 1;
+        return *flagByte;
+    }
+    case OAConfig::HBLOCK_TYPE::hbExternal:
+    {
+        // If we are a pointer, we are allocated. IF not, we aren't.
+        unsigned char* header = toHeader(object);
+        return *header;
+    }
+    default:
+        return false;
+        break;
+    }
+}
+
+/******************************************************************************/
+/*!
+
+  Given a pointer to an object and its header type, creates the headers for 
+  that object data.
+
+  \param object
+    The pointer to the object to create a header for.
+  \param label
+    Only used for external labels. Labels the header.
+  \param headerType
+    The type of header to create
+
+*/
+/******************************************************************************/
+void ObjectAllocator::updateHeader(GenericObject* Object, OAConfig::HBLOCK_TYPE headerType, const char* label)
 {
     switch (headerType)
     {
@@ -640,29 +1112,99 @@ void ObjectAllocator::updateHandle(GenericObject* Object, OAConfig::HBLOCK_TYPE 
     }
 }
 
+/******************************************************************************/
+/*!
+
+  Given an pointer to a data block, returns the header.
+
+  \param obj
+    Pointer to data block to return header for.
+  \return
+    Pointer to the header for the obj passed in.
+*/
+/******************************************************************************/
  unsigned char* ObjectAllocator::toHeader(GenericObject* obj) const
 {
     return reinterpret_cast<unsigned char*>(obj) - this->configuration.PadBytes_ - this->configuration.HBlockInfo_.size_;
 }
 
+ /******************************************************************************/
+/*!
+
+  Given an pointer to a data block, returns the left padding address.
+
+  \param obj
+    Pointer to data block to return left padding
+  \return
+    Pointer to the header for the obj passed in.
+*/
+/******************************************************************************/
 unsigned char* ObjectAllocator::toLeftPad(GenericObject* obj) const
 {
     return reinterpret_cast<unsigned char*>(obj) - this->configuration.PadBytes_;
 }
 
+/******************************************************************************/
+/*!
+
+  Given an pointer to a data block, returns right padding
+
+  \param obj
+    Pointer to data block to return right padding
+  \return
+    Pointer to the header for the obj passed in.
+*/
+/******************************************************************************/
 unsigned char* ObjectAllocator::toRightPad(GenericObject* obj) const
 {
     return reinterpret_cast<unsigned char*>(obj) + this->stats.ObjectSize_;
 }
 
+/******************************************************************************/
+/*!
+
+  Given a head node and a node, inserts the node before the head node in the
+  linked list.
+
+  \param head
+    Head of the linked list to insert the new node in.
+  \param node
+    Node to insert before the head of the linkedl list.
+    
+*/
+/******************************************************************************/
 void ObjectAllocator::InsertHead(GenericObject*& head, GenericObject* node)
 {
     node->Next = head;
     head = node;
 }
 
-OAConfig::OAConfig(bool UseCPPMemManager, unsigned int ObjectsPerPage, unsigned int MaxPages, bool DebugOn,
-                   unsigned int PadBytes, const OAConfig::HeaderBlockInfo &HBInfo, unsigned int Alignment)
+/******************************************************************************/
+/*!
+
+  Contructor for the configuration file.
+
+  \param UseCPPMemManager
+    Head of the linked list to insert the new node in.
+  \param ObjectsPerPage
+    Node to insert before the head of the linkedl list.
+  \param MaxPages
+    The maximum number of pages the OA is allowed to allocate
+  \param DebugOn
+    Turn on debug settings for the OA
+  \param PadBytes
+    The number of bytes used for padding
+  \param HBInfo
+    The information about the header to use
+  \param Alignment
+    The number of bytes to align to.
+
+*/
+/******************************************************************************/
+OAConfig::OAConfig(bool UseCPPMemManager, unsigned int ObjectsPerPage, 
+                   unsigned int MaxPages, bool DebugOn,
+                   unsigned int PadBytes, const OAConfig::HeaderBlockInfo &HBInfo, 
+                   unsigned int Alignment)
         : UseCPPMemManager_(UseCPPMemManager),
           ObjectsPerPage_(ObjectsPerPage),
           MaxPages_(MaxPages),
