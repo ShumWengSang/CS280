@@ -36,6 +36,7 @@
 #include "ObjectAllocator.h"
 #include <cstdint>   // size_t 
 #include <cstring>   // strlen, memset
+#include <cstdlib>   // abs
 
 #define PTR_SIZE sizeof(word_t)      //! Size of a pointer.
 #define INCREMENT_PTR(ptr) (ptr + 1) //! Move the pointer by one
@@ -75,7 +76,7 @@ constexpr size_t operator "" _z(unsigned long long n)
     Returns n, expanded so that it aligns with align
 */
 /******************************************************************************/
-constexpr size_t align(size_t n, size_t align)
+inline size_t align(size_t n, size_t align)
 {
     if (!align)
         return n;
@@ -95,7 +96,7 @@ constexpr size_t align(size_t n, size_t align)
 */
 /******************************************************************************/
 MemBlockInfo::MemBlockInfo(unsigned alloc_num_, const char* label_): in_use(true),
-    alloc_num(alloc_num_), label(nullptr)
+    label(nullptr), alloc_num(alloc_num_)
 {
     if (label_)
     {
@@ -148,8 +149,8 @@ ObjectAllocator::ObjectAllocator(size_t ObjectSize, const OAConfig &config) : co
     this->stats.PageSize_ = headerSize + dataSize * (config.ObjectsPerPage_ - 1) + ObjectSize + config.PadBytes_;
     this->totalDataSize = dataSize * (configuration.ObjectsPerPage_ - 1) + ObjectSize + config.PadBytes_;
     
-    unsigned interSize = ObjectSize + this->configuration.PadBytes_ * 2_z + this->configuration.HBlockInfo_.size_;
-    this->configuration.InterAlignSize_ = align(interSize, this->configuration.Alignment_) - interSize;
+    size_t interSize = ObjectSize + this->configuration.PadBytes_ * 2_z + static_cast<size_t>(this->configuration.HBlockInfo_.size_);
+    this->configuration.InterAlignSize_ = static_cast<unsigned>(align(interSize, this->configuration.Alignment_) - interSize);
     allocate_new_page_safe(this->PageList_);
 }
 
@@ -229,7 +230,6 @@ void* ObjectAllocator::Allocate(const char* label)
     }
     // Give them from the new page.
     GenericObject* objectToGive = this->FreeList_;
-    unsigned char* objectPtr = reinterpret_cast<unsigned char*>(objectToGive);
     
     // Update the free list
     this->FreeList_ = this->FreeList_->Next;
@@ -615,7 +615,8 @@ void ObjectAllocator::allocate_new_page_safe(GenericObject *&LPageList)
 
         
         // For each start of the data...
-        for (; (DataStartAddress - PageStartAddress) < this->stats.PageSize_; DataStartAddress += this->dataSize)
+        for (; static_cast<unsigned>(abs(static_cast<int>(DataStartAddress - PageStartAddress))) < this->stats.PageSize_;
+         DataStartAddress += this->dataSize)
         {
             // We intepret it as a pointer.
             GenericObject* dataAddress = reinterpret_cast<GenericObject*>(DataStartAddress);
@@ -924,7 +925,7 @@ void ObjectAllocator::check_boundary_full(unsigned char* addr) const
         unsigned char* pageStart = reinterpret_cast<unsigned char*>(pageList);
         
         // Check if we are intruding on header.
-        if(addr - pageStart < this->headerSize)
+        if(static_cast<unsigned>(addr - pageStart) < this->headerSize)
             throw OAException(OAException::E_BAD_BOUNDARY, "Bad boundary.");
         
         pageStart += this->headerSize;
@@ -1217,8 +1218,8 @@ OAConfig::OAConfig(bool UseCPPMemManager, unsigned int ObjectsPerPage,
 
 
     // We need to calc what is left align and the interblock alignment
-    unsigned leftHeaderSize = PTR_SIZE + HBInfo.size_ + this->PadBytes_;
-    LeftAlignSize_ = align(leftHeaderSize, this->Alignment_) - leftHeaderSize;
+    unsigned leftHeaderSize = static_cast<unsigned>(PTR_SIZE + HBInfo.size_ + static_cast<size_t>(this->PadBytes_));
+    LeftAlignSize_ = static_cast<unsigned>(align(leftHeaderSize, this->Alignment_) - leftHeaderSize);
 
     InterAlignSize_ = 0;
 }
