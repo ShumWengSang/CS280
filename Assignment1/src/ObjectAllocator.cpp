@@ -929,8 +929,8 @@ void ObjectAllocator::check_boundary_full(unsigned char* addr) const
             throw OAException(OAException::E_BAD_BOUNDARY, "Bad boundary.");
         
         pageStart += this->headerSize;
-        size_t distance = addr - pageStart;
-        if(distance % this->dataSize != 0)
+        long distance = addr - pageStart;
+        if(static_cast<size_t>(distance) % this->dataSize != 0)
             throw OAException(OAException::E_BAD_BOUNDARY, "Bad boundary.");
 
 }

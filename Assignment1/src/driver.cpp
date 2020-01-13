@@ -1843,7 +1843,7 @@ void DumpPages(const ObjectAllocator *nm, unsigned width)
     unsigned count = 0;
 
     if (SHOWREAL)
-      printf("%p\n", pages);
+      printf("%p\n", (void*)pages);
     else
       printf("XXXXXXXX\n");
 
@@ -2006,7 +2006,7 @@ void DumpPagesEx(const ObjectAllocator *nm, unsigned width)
     unsigned count = 0;
 
     if (SHOWREAL)
-      printf("%p\n", pages);
+      printf("%p\n", (void*)pages);
     else
       printf("XXXXXXXX\n");
 

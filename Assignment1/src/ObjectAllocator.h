@@ -22,7 +22,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>  // string
-
+#include <iostream> 
 // If the client doesn't specify these:
 static const int DEFAULT_OBJECTS_PER_PAGE = 4;//! Default Objects Per Page
 static const int DEFAULT_MAX_PAGES = 3;       //! Default Maximum Amount Of Pages
