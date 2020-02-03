@@ -1,0 +1,13 @@
+1) add support for division and subtraction to evaluate postfix expressions
+2) create function to convert infix to postfix notations
+
+
+Notes:
+Only single-digit numbers will be used as input, so each character is a token 
+(to remove this restriction - NOT PART of this lab, one will have to use some kind of delimeter 
+ in postfix notation: 12+15 --> 12;15;+)
+
+Only 4 operators are supported +,-,*,/. All of them associate left-to-right, therefore 
+the simplified algorithm from cs280 slides may be used. To support right-to-left associated 
+operations ( like "+=", etc) you will need (NOT PART of this lab) complete version of Dijkstra's railroad shunting yard algorithm:
+https://en.wikipedia.org/wiki/Shunting-yard_algorithm
