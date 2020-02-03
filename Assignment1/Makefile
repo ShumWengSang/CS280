@@ -6,7 +6,7 @@ CXX=g++
 
 CFLAGS=-std=c++11
 
-CFLAGS+=-Wpedantic -Wall -Wextra -Werror -pendantic -Wconversion
+CFLAGS+=-Wpedantic -Wall -Wextra -Werror -pedantic -Wconversion
 
 CFLAGS := $(CFLAGS_OPT) $(CFLAGS)
 LDFLAGS := -flto -fwhole-program
@@ -29,8 +29,14 @@ default: $(TARGET_FILE)
 $(OBJDIR):
 	mkdir $@
 
+run:
+	./$(TARGET_FILE) > debug.txt
+
 clean:
 	-rm -rf $(OBJDIR) $(TARGET_FILE)
 
 diff:
-	kdiff3 debug.txt output-sample-zeros-LP64.txt
+	kompare -c debug.txt output-sample-zeros-ec-LP64.txt
+	
+memchk:
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(TARGET_FILE)
