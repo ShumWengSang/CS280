@@ -1,0 +1,136 @@
+Only recursive implementations will get credit.
+
+
+(Definition copied from Wikipedia) The Tower of Hanoi (also called the Tower of Brahma
+or Lucas’ Tower and sometimes pluralized) is a mathematical game or puzzle.  It consists of
+three rods and a number of disks of different sizes, which can slide onto any rod.  The puzzle
+starts with the disks in a neat stack in ascending order of size on one rod, the smallest at
+the top, thus making a conical shape.
+
+The objective of the puzzle is to move the entire stack to another rod, obeying the following
+simple rules:
+(a)  Only one disk can be moved at a time.
+(b)  Each move consists of taking the upper disk from one of the stacks and placing it on top of another stack.
+(c)  No disk may be placed on top of a smaller disk.
+
+Algorithm:
+denote pegs A, B, C. Initially all disks (enumerated 1...n, where 1 is biggest - at the bottom) 
+are on peg A (source),  destination is peg C (destination), peg B is currently empty (auxiliary).  
+The meaning of source and auxiliary will alternate throughout the
+algorithm:
+(a)  Move top n-1 disks from source to auxiliary (recursive call)
+(b)  Move largest disk from source to destination.
+(c)  Move top n-1 disks from source to destination (recursive call)
+
+What is the run-time of your algorithm?
+
+Part 1: required
+-------
+Implement function hanoi_tower_1 that solves the problem and outputs moves only. Example (test0):
+move disk 1 from A to C
+move disk 2 from A to B
+move disk 1 from C to B
+move disk 3 from A to C
+move disk 1 from B to A
+move disk 2 from B to C
+move disk 1 from A to C
+
+Part 2: extra credit
+-------
+Implement function hanoi_tower_2 that solves the problem and outputs tower where each disk 
+is represented by its number. Example (test7):
+1 0 0
+2 0 0
+3 0 0
+
+0 0 0
+2 0 0
+3 0 1
+
+0 0 0
+0 0 0
+3 2 1
+
+0 0 0
+0 1 0
+3 2 0
+
+0 0 0
+0 1 0
+0 2 3
+
+0 0 0
+0 0 0
+1 2 3
+
+0 0 0
+0 0 2
+1 0 3
+
+0 0 1
+0 0 2
+0 0 3
+
+Part 3: extra credit
+-------
+Implement function hanoi_tower_3 that solves the problem and outputs tower where disk k
+is represented as a line of '=' of length 2k+1: for k=3 "===|===". Pegs are align vertically.
+Example (test13):
+
+  =|=      |       |   
+ ==|==     |       |   
+===|===    |       |   
+
+   |       |       |   
+ ==|==     |       |   
+===|===    |      =|=  
+
+   |       |       |   
+   |       |       |   
+===|===  ==|==    =|=  
+
+   |       |       |   
+   |      =|=      |   
+===|===  ==|==     |   
+
+   |       |       |   
+   |      =|=      |   
+   |     ==|==  ===|===
+
+   |       |       |   
+   |       |       |   
+  =|=    ==|==  ===|===
+
+   |       |       |   
+   |       |     ==|== 
+  =|=      |    ===|===
+
+   |       |      =|=  
+   |       |     ==|== 
+   |       |    ===|===
+
+White space note: 
+1) white space in the end of the line will be ignored, i.e. the next 3 lines are identical
+"   |       |      =|=  "
+"   |       |      =|="
+"   |       |      =|=          "
+
+2) the number of new lines is important. 
+
+Be careful not to run it with n=64 - according to a legend the world will end:
+From Wikipedia:
+The puzzle was invented by the French mathematician Edouard Lucas in 1883.
+There is a story about an Indian temple in Kashi Vishwanath which contains a
+large room with three time-worn posts in it, surrounded by 64 golden disks.
+Brahmin priests, acting out the command of an ancient prophecy, have been
+moving these disks in accordance with the immutable rules of Brahma since that
+time. The puzzle is therefore also known as the Tower of Brahma puzzle.
+According to the legend, when the last move of the puzzle is completed, the
+world will end.
+
+I used iomanip for the part 3 and sstream libraries for all parts. 
+They provide useful functionality:
+
+std::stringstream ss; // string that can be used as stream
+ss << std::right << std::setfill('=') << std::setw(max+1) << "=|";
+// adjust output to right, print "=|" using width max+1 and use "=" to fill.

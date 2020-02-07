@@ -1,0 +1,4 @@
+move disk 10 from A to C
+move disk 10 from C to B
+move disk 10 from B to A
+move disk 10 from A to C

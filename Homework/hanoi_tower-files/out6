@@ -1,0 +1,8 @@
+move disk 9 from A to B
+move disk 9 from B to C
+move disk 9 from C to A
+move disk 9 from A to B
+move disk 9 from B to C
+move disk 9 from C to A
+move disk 9 from A to B
+move disk 9 from B to C

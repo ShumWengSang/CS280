@@ -1,0 +1,17 @@
+Write a recursive function that prints all possible subsets of a given set.
+Set will be provided as an std::vector. 
+
+Idea: assuming the size of the set is n, your recursion should be depth n. 
+On level i of recursion you either "add" (first recursive call) 
+or "not add" (second recursive call) the i'th item of the vector.
+
+Set {a,b,c}:
+
+Subsets:
+                     {}                     a
+                 /        \
+                a           {}              b
+              /   \        /   \
+             ab     a     b    {}           c
+            /  \   / \   / \   / \ 
+           abc ab ac  a bc  b c   {}        <---- all 8 subsets

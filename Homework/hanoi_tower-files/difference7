@@ -1,0 +1,41 @@
+1,32c1,7
+< 1 0 0
+< 2 0 0
+< 3 0 0
+< 
+< 0 0 0
+< 2 0 0
+< 3 0 1
+< 
+< 0 0 0
+< 0 0 0
+< 3 2 1
+< 
+< 0 0 0
+< 0 1 0
+< 3 2 0
+< 
+< 0 0 0
+< 0 1 0
+< 0 2 3
+< 
+< 0 0 0
+< 0 0 0
+< 1 2 3
+< 
+< 0 0 0
+< 0 0 2
+< 1 0 3
+< 
+< 0 0 1
+< 0 0 2
+< 0 0 3
+< 
+---
+> move disk 1 from A to C
+> move disk 2 from A to B
+> move disk 1 from C to B
+> move disk 3 from A to C
+> move disk 1 from B to A
+> move disk 2 from B to C
+> move disk 1 from A to C
