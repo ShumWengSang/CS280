@@ -1,0 +1,48 @@
+-------- test16 --------
+Before compacting
+Head = 0x1bbac30     tail = 0x1bbac70    count = 5   size 18
+   0  1  2  3  4  5      6  7  8               9 10 11              12 13 14              15 16 17             
++------------------+  +------------------+  +------------------+  +------------------+  +------------------+  
+| 18 17 16 15 14 13|->| 12 11 10  -  -  -|->|  9  8  7  -  -  -|->|  6  5  4  -  -  -|->|  3  2  1  -  -  -|->
++------------------+  +------------------+  +------------------+  +------------------+  +------------------+  
+         0x1bbac30           0x1bbad30           0x1bbacf0           0x1bbacb0           0x1bbac70  
+0 <-- 0x1bbac30 --> 0x1bbad30
+      0x1bbac30 <-- 0x1bbad30 --> 0x1bbacf0
+                    0x1bbad30 <-- 0x1bbacf0 --> 0x1bbacb0
+                                  0x1bbacf0 <-- 0x1bbacb0 --> 0x1bbac70
+                                                0x1bbacb0 <-- 0x1bbac70 --> 0
+
+
+After compacting
+Head = 0x1bbac30     tail = 0x1bbacf0    count = 3   size 18
+   0  1  2  3  4  5      6  7  8  9 10 11     12 13 14 15 16 17    
++------------------+  +------------------+  +------------------+  
+| 18 17 16 15 14 13|->| 12 11 10  9  8  7|->|  6  5  4  3  2  1|->
++------------------+  +------------------+  +------------------+  
+         0x1bbac30           0x1bbad30           0x1bbacf0  
+0 <-- 0x1bbac30 --> 0x1bbad30
+      0x1bbac30 <-- 0x1bbad30 --> 0x1bbacf0
+                    0x1bbad30 <-- 0x1bbacf0 --> 0
+
+
+find 0:   not found 
+find 1:   position 17
+find 2:   position 16
+find 3:   position 15
+find 4:   position 14
+find 5:   position 13
+find 6:   position 12
+find 7:   position 11
+find 8:   position 10
+find 9:   position 9
+find 10:   position 8
+find 11:   position 7
+find 12:   position 6
+find 13:   position 5
+find 14:   position 4
+find 15:   position 3
+find 16:   position 2
+find 17:   position 1
+find 18:   position 0
+find 19:   not found 
+find 20:   not found 

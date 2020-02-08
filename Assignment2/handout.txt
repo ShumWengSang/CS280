@@ -1,0 +1,707 @@
+/*******************************************************************************
+  CS280 Assignment - Lariat
+    A Programmer's Guide
+    Written by Luke Cardell, slightly modified by Dmitri Volper
+
+  ############################################################################
+    It is important to understand that this is not the only way to solve this
+  assignment, merely the way that worked best for me.
+  ############################################################################
+
+  What is Lariat? Under the hood, Lariat looks like a "linked list of arrays".
+
+    The main goal is to have a more efficient (compared to array) insert in the
+  middle. Reminder: if array (and consequently std::vector) insert an element 
+  in the middle, all elements to the right of the insert position have to be
+  shifted 1 position to the right to free a spot for new element. This is O(N)
+  (linear) operation. Another possible problem is if there is not anough space,
+  which will required reallocation if the whole array.
+    Lariat solves the problem by storing small segments of contiguous memory 
+  non-contiguously. 
+    During insert one of 2 things can happen (see datail later):
+    - the contiguous block may have extra space, so only some elements have to
+      be shifted:
+//    0  1            2  3  4        // index
+// +------------+  +------------+  
+// |  1  3     -|->|  4  5  6  -|->  // data
+// +------------+  +------------+  
+// after insert 2 before 3
+//    0  1  2         3  4  5         6  7  8       
+// +------------+  +------------+  +------------+  
+// |  1  2  3  -|->|  4  5  6  -|->|  9  9  9  -|->
+// +------------+  +------------+  +------------+  
+// only value 3 had to shifted
+
+    - block containing insert position is full, then we split it:
+// insert 8 before 5
+// first split:
+//    0  1  2         3  4            5  6            6  7  8       
+// +------------+  +------------+  +------------+  +------------+  
+// |  1  2  3  -|->|  4  8     -|->|  5  6     -|->|  9  9  9  -|->
+// +------------+  +------------+  +------------+  +------------+  
+// now insert
+//    0  1  2         3  4            5  6            7  8  9       
+// +------------+  +------------+  +------------+  +------------+    
+// |  1  2  3  -|->|  4  8     -|->|  5  6     -|->|  9  9  9  -|->
+// +------------+  +------------+  +------------+  +------------+    
+// only values 5 and 6 were copied
+
+
+  +--------------------------------------------------------------------------+
+  |---------ALL IMPLEMENTATION IS LEFT AS AN EXERCISE FOR THE READER---------|
+  +--------------------------------------------------------------------------+
+*******************************************************************************/
+
+/*******************************************************************************
+            ]]]>>>> LUKE'S GUIDE TO TEMPLATED TEMPLATES <<<<[[[
+            ----------------------  OR  -----------------------
+             Nesting Function Templates within Class Templates
+
+  "We put some templates in your templates so you could generate code at compile
+  time while you generate code at compile time."
+      -C++
+
+  A template is a section of code like any other that gets "written" at compile
+  time, rather than when you actually write templated code. In this sense,
+  writing a template is about using the compiler to your own advantage to avoid
+  doing unnecessary work.
+
+       -= Laziness FTW =-
+
+  A normal function template is declared as such:
+
+    template<typename T>
+    void Foo(T bar);
+
+  The definition requires knowledge of the template parameters in order to work:
+
+    template<typename T>
+    void Foo<T>(T bar) {
+      //     |
+      //      `-[function template ]
+
+      //...
+    }
+
+    In the Lariat assignment, you will have to make a templated copy constructor
+  and assignment operator for the Lariat template class. This is similar to
+  writing a static function template, but it's written within another
+  encompassing template, the Lariat class in this case.
+
+    The basic declaration of the function is just like a normal template
+  function, but within a class scope.
+
+    template<typename T>
+    class Foo
+    {
+      //...
+
+      template<typename Bar>
+      void Baz(Bar & qux);
+
+      //...
+    };
+
+    The definition of the function takes a little bit more work, which may be
+  confusing at first.
+
+    template<typename T>    // Gives the external class template information
+    template<typename Bar>  // Gives the internal function template information
+    void Foo<T>::Baz<Bar>(Bar & qux)
+    { // |          |
+      // |           `-[function signature]
+      //  `-[class namespace]
+
+      // ...
+    }
+
+  The first template declaration belongs to the class, which may be instantiated
+  multiple times with multiple name-mangled signatures based on the compiler's
+  implementation of templates.
+
+  The second template declaration belongs to the function, which will likely be
+  instantiated multiple times for every single class instantiation. In this way
+  the structure resembles a tree:
+
+                      +-source------------------------------+
+                      | original code written by programmer |
+                      +-------------------------------------+
+                         /                               \
+             +-class---------+                     +-class---------+
+             | instantiation |                     | instantiation |
+             | for type A    |                     | for type B    |
+             +---------------+                     +---------------+
+             /               \                     /               \
+  +-function------+ +-function------+      +-function------+ +-function------+
+  | type A        | | type B        |      | type A        | | type B        |
+  | instantiation | | instantiation |      | instantiation | | instantiation |
+  +---------------+ +---------------+      +---------------+ +---------------+
+
+                                      #dat_ascii
+
+    The next little template trick you might run into with this assignment comes
+  when you try to refer to internal member types in the instantiation of code.
+  I personally used this in my helper functions that returned pointers to nodes
+  in the list, but it's useful for any further template work you might be
+  interested in doing.
+
+    Dependent types are also instantiated for ech class, with the exact same
+  process as function templates. This means that using just the internal name
+  in external code will lead to type confusion, where the compiler isn't sure
+  which owning class is being referred to.
+
+    A class class template with a member type and a member function returning a
+  pointer to the member type:
+
+    template<typename T>
+    class Foo
+    {
+      //...
+
+      struct Bar
+      {
+        //...
+      }
+
+      Bar * Baz();
+
+      //...
+    };
+
+    The member function here must be defined as such:
+
+    template<typename T>
+    typename Foo<T>::Bar * Foo<T>::Baz()
+    { // |       |    |       |     |
+      // |       |    |       |      `-[function signature]
+      // |       |    |        `-[class namespace]
+      // |       |     `-[member typename]
+      // |        `-[class namespace]
+      //  `-[declaration of token as user-defined type]
+
+      //...
+    }
+
+    The last real trick I want to share with you pertains directly to the copy
+  constructors this assignment requires. At their instantiation, class templates
+  only have direct access to their own instatiation's member variable. This
+  means that in order to see another instantiation's private variables, there
+  must be a declaration of each instantiation as a friend.
+
+    How do you make something to account for any scenario at compile time?
+
+    Simple. More templates.
+
+    Declare a friend class template in your original class template.
+
+    template<typename T>>
+    class Foo
+    {
+      //...
+
+      template<typename U>  //[nested template declaration]
+      friend class Foo<U>;  //[friend declaration for class template]
+
+      //...
+    }
+
+    This has been my brief introduction to templates as they pertain to this
+  assignment. They may seem scary, but templates allow for a greater depth and
+  elegance of code, decreasing the total writing time and reducing the volume of
+  duplicated code.
+*******************************************************************************/
+
+/*******************************************************************************
+[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[LARIAT CLASS DETAILS]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+
+  =============================Template Parameters============================
+    The Lariat class has two template parameters which are generally self-
+  explanatory.
+
+  typename T: The type of data being stored in the data structure
+  int Size: The logical size of the arrays within each node
+
+  ==============================Member Variables==============================
+    The Lariat class provided by Volper has five member variables.
+
+  head_: A pointer to the first node in the linked list
+  tail_: A pointer to the last node in the linked list
+  size_: An integer for the total number of elements actively storing data
+  nodecount_: An integer for the number of nodes in the linked list
+  asize_: An integer for the size of the array within each node
+          Interchangeable with the template parameter <Size>
+
+  =================================Member Type================================
+    The Lariat class has one member type, the LNode struct used in the linked
+  list internal implementation. LNode has four member variables of its own.
+
+  next: A pointer to the next node in the linked list
+  prev: A pointer to the previous node in the linked list
+  count: An integer to track of how many elements the LNode is actively storing
+  values: An array of <Size> elements of type <T>
+
+*******************************************************************************/
+
+/*******************************************************************************
+[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[FUNCTION DETAILS]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+    Remember to check for null at any point you're dealing with pointers. In
+  particular, make sure to check if the head and tail are null before you try
+  to work with them. I find that not dereferencing null is generally the better
+  programming practice.
+    Also remember to update the size_ and nodecount_ member variables where
+  necessary.
+*******************************************************************************/
+
+/*******************************************************************************
+  Index:
+  + Constructors and Destructor
+    - ctor
+    - copy ctor (own-type)
+    - copy ctor (template)
+    - dtor
+  + Assignment Operators
+    - operator= (own-type)
+    - operator= (template)
+  + Element Addition
+    - insert
+    - push_back
+    - push_front
+  + Element Removal
+    - erase
+    - pop_back
+    - pop_front
+  + Element Access
+    - operator[]
+    - first
+    - last
+  + Data Structure Information
+    - find
+    - size
+  + Data Structure Control
+    - clear
+    - compact
+  + Recommended Helper Functions
+    - split
+    - findElement
+    - shiftUp
+    - shiftDown
+*******************************************************************************/
+
+/*******************************************************************************
+========================= Constructors and Destructor ==========================
+*******************************************************************************/
+
+// Constructor
+  // This constructor is really simple. You don't need to do any logic, just
+    // use a member initializer list to initialize
+
+// Copy Constructor (own-type)
+  // This is the standard copy constructor. The function should loop through the
+    // instance passed in, pushing each element of the other onto the back of
+    // the one being constructed.
+  // It should be done using the algorithm for (or directly calling) push_back
+    // so that all of the nodes are split correctly.
+
+// Copy Constructor (template)
+  // This copy constructor is algorithmically identical to the own-type
+    // constructor, but is templated to allow for a Lariat type instantiation
+    // with different parameters for <T> and <Size>.
+  // Refer to the above guide to templates for details on how to write the
+    // function signature.
+
+// Destructor
+  // The destructor is a simple, generic destructor. It's sole purpose is to
+    // free all the nodes in the linked list so there are no memory leaks.
+
+/*******************************************************************************
+============================ Assignment Operators ==============================
+*******************************************************************************/
+
+// operator= (own-type)
+  // This assignment operator generally works exactly the same as you might
+    // expect. Set the non-pointer members as necessary, clear this instance's
+    // data, then walk through the right-hand argument's list adding each
+    // element to this instance
+
+// operator= (template)
+  // This assignment operator follows the exact same algorithm as the own-type
+    // version, but is a nested template like I described above.
+
+/*******************************************************************************
+============================== Element Addition ================================
+*******************************************************************************/
+
+// insert
+// Insert an element into the data structure at the index, between the element
+// at [index - 1] and the element at [index]
+// The first thing to this function is to check for an Out of Bounds error. If
+// the index is invalid, throw a LariatException with E_BAD_INDEX and the
+// description "Subscript is out of range"
+// Make sure to handle the "edge" cases, which allow for insertion at the end
+// of the deque as well as the beginning. I personally suggest calling
+// push_back and push_front in these cases, as it helps minimize the amount
+//  of code written and the algorithm is identical anyways.
+// The next thing to do is to set up the actual insertion algorithm.
+// First, find the node and local index of the element being inserted. This
+// can be done with the findElement helper function detailed in the
+// Recommended Helper Functions section of this guide.
+// Next, shift all elements past that local index one element to the right.
+// This can be done with the shiftUp function detailed in the Recommended
+// Helper Functions section of the guide.
+      /*
+            [e]
+             |
+             v
+        +------------------+      (0) Starting position, inserting 'e' at
+        |[a][b][c][d][_][_]|          index 1 of the node
+        +-0--1--2--3--4--5-+
+
+            [e]
+             |
+             v
+        +------------------+      (1) Shift all elements right from index
+        |[a][_][b][c][d][_]|
+        +-0--1--2--3--4--5-+
+
+            [_]
+             |
+             v
+        +------------------+      (2) Set the newly open element to the value
+        |[a][e][b][c][d][_]|          being inserted, 'e' here
+        +-0--1--2--3--4--5-+
+      */
+      // This should work for the most common use-case, but it will cause a
+        // problem if the node is full.
+    // If the node is full, you will need to keep track of the last element in
+      // the node before you shift all the elements to the right. Again, this is
+      // easy to do with the recommended helper function.
+      // I call this "popped off" element the overflow.
+      /*
+            [g]
+             |            [_]
+             v            /
+        +------------------+      (0) Starting position, inserting 'g' at
+        |[a][b][c][d][e][f]|          index 1 of a full node
+        +-0--1--2--3--4--5-+
+
+            [g]
+             |            [f] <-[overflow]
+             v            /
+        +------------------+      (1) Shift all elements right from index,
+        |[a][_][b][c][d][e]|          keeping track of the overflow, 'f' here
+        +-0--1--2--3--4--5-+
+
+            [_]
+             |            [f]
+             v            /
+        +------------------+      (2) Set the newly open element to the value
+        |[a][g][b][c][d][e]|          being inserted, 'g' here
+        +-0--1--2--3--4--5-+
+      */
+// Next, you will need to split the node.
+// I would recommend writing a helper function for this algorithm as it
+// will be used elsewhere. I have detailed the split algorithm in the
+// Recommended Helper Functions section below.
+// You will need to transfer the overflow to the last element of the new
+// node created by the split. It is possible to put this part of the
+// algorithm directly in the split function. I will not detail that in
+// this guide, but rather leave it for you to discover on your own.
+// Working out that algorithm will probably make your code much cleaner,
+// so I would definitely recommend figuring it out.
+// As the split algorithm accurately updates the node counts for the split
+// nodes, the only thing left to do is increment the node count.
+
+// push_back
+// This is an easy algorithm using the split function.
+// If the tail node is full, split the node and update the tail_ pointer.
+// Set the last element in the tail's array to the value.
+// Increment the tail node's count.
+
+// push_front
+// This algorithm is more similar to the insert function than the push_back
+// algorithm, but is still relatively simple.
+// If the head node is empty, increment the node's count.
+// If the head node is full, you will need to shift the elements up, in the
+// same way they were shifted in the insert function, making sure to track
+// the overflow.
+// Next you will need to split the node.
+// In order to account for splitting the only node in the linked list, you
+// will have to update the tail_ pointer as necessary.
+// If the head node isn't full yet, just shift the head node up an element
+// from element 0 and increase the count.
+// Set the 0'th element of the head to the value.
+
+/*******************************************************************************
+=============================== Element Removal ================================
+*******************************************************************************/
+
+// erase
+// This function uses the findElement helper function I have detailed in the
+// Recommended Helper Functions section of this guide. Having implemented
+// that, the function itself is relatively simple.
+// You can use the pop_back and pop_front functions if the index requested is
+// the first or last element.
+// First, find the containing node and local index of the requested global
+// index.
+// Shift all the elements in the node beyond the local index left one element,
+// covering the element being erased. This is done with the shiftDown
+// function detailed in the Recommended Helper Functions section. Make sure
+// to account for the node being only one element large.
+// Decrement the node's count.
+
+// pop_back
+// Decrement the count of the tail node.
+
+// pop_front
+// Shift all elements in the head node down one element.
+// Decrement the head's count.
+// If the head node is now empty, free the associated memory.
+
+/*******************************************************************************
+================================ Element Access ================================
+*******************************************************************************/
+// As the const and non-const versions of these functions are algorithmically
+// and syntactically identical, I would recommend (may Shilling forgive me)
+// copy/pasting the code from one to the other. You can't call one from inside
+// the other, as that would violate the const requirements.
+
+// operator[]
+// Find the containing node and local index of the index passed in. Like
+// insert and erase, this is easily done with the findElement helper
+// function I detailed in the Recommended Helper Functions section of this
+// guide.
+// Return the element at the local index of the containing node.
+
+// first
+// This is one of the easiest functions in this assignment.
+// Return the first element of the head node.
+
+// last
+// This is also an easy function.
+// Return the last element in the tail node.
+
+/*******************************************************************************
+========================== Data Structure Information ==========================
+*******************************************************************************/
+
+// find
+// Walk the list in a similar fashion to that detailed in the findElement
+// helper function, but check equivalence for each element in each node,
+// returning the index when the desired element is found.
+// If the desired element is not found, return the total number of elements
+// contained in the data structure.
+
+// size
+// You should be tracking the size_ member variable throughout the element
+// addition and removal processes. Return that variable now.
+
+/*******************************************************************************
+============================ Data Structure Control ============================
+*******************************************************************************/
+
+// clear
+// This is a relatively simple function with a similar algorithm to the
+// class destructor.
+// First, loop through the list, freeing each node in turn.
+// Once the list is empty, update the necessary member variables.
+
+// compact
+// Compact takes all the data stored in the linked list and moves it into the
+// smallest number of nodes possible. Then it frees all empty nodes at the
+// end of the list.
+// The algorithm for this walks the list at two points in parallel. I will
+// refer to the walker having elements shifted into it as the left foot and
+// the walker reading through the elements to shift as the right foot.
+// First, loop through the list with both feet until the left node is not
+// already full and the right foot hasn't walked off the list.
+// Next, walk through the list while the right foot hasn't lost the list.
+// This loop should first store the count of elements in the right node,
+// then set the count of the right node to zero. This allows the left foot
+// to update it as it is given elements to store.
+// This loop should have a nested loop that stores each value from the right
+// foot in the left foot's node, and steps the left foot to the next node
+// when it is filled.
+/*========================================================================
+|                                                                       |
+|                 ______________________________________                |
+|                |.-KEY--------------------------------.|               |
+|                || [node]   [values]   [count]        ||               |
+|                ||   |         |           |  [next]  ||               |
+|                ||   v         v           v    |     ||               |
+|                ||  +-+-node-------------+---+  v     ||               |
+|                ||  |#|[_][_][_][_][_][_]|(_)| --->   ||               |
+|                ||  +-+------------------+---+        ||               |
+|                ||      0  1  2  3  4  5  <-[indices] ||               |
+|                ||____________________________________||               |
+|                '--------------------------------------'               |
+|                                                                       |
+|=======================================================================|
+|(0) The starting position of the inner loop, transfering right's first |
+|    element into left's fifth space                                    |
+|                                                                       |
+|                                  [rpos = 0]                           |
+|                                      |                      [rtot = 3]|
+|  +-+-left-------------+---+      +-+-right------------+---+      +-+- |
+|  |0|[a][b][c][d][_][_]|(4)| ---> |1|[e][f][g][_][_][_]|(0)| ---> |2|[ |
+|  +-+------------------+---+      +-+------------------+---+      +-+- |
+|      0  1  2  3  4  5                0  1  2  3  4  5                 |
+|                                                                       |
+|=======================================================================|
+|(1) Next important point, the left foot is now full. Set the left foot |
+|    to the next node in the list and continue the algorithm            |
+|                                                                       |
+|                                        [rpos = 2]                     |
+|                                            |                [rtot = 3]|
+|  +-+-left-------------+---+      +-+-right------------+---+      +-+- |
+|  |0|[a][b][c][d][e][f]|(6)| ---> |1|[_][_][g][_][_][_]|(0)| ---> |2|[ |
+|  +-+------------------+---+      +-+------------------+---+      +-+- |
+|      0  1  2  3  4  5                0  1  2  3  4  5                 |
+|                                                                       |
+|=======================================================================|
+|(2) Left and right feet are now standing on the same node, but the     |
+|    algorithm still works because it is based on index in the node     |
+|    rather than the node itself.                                       |
+|                                                                       |
+|        [rpos = 2]                                                     |
+|            |                                                [rtot = 3]|
+|  +-+-left/right-------+---+      +-+-right->next------+---+      +-+- |
+|  |1|[_][_][g][_][_][_]|(0)| ---> |2|[h][i][j][k][_][_]|(4)| ---> |3|[ |
+|  +-+------------------+---+      +-+------------------+---+      +-+- |
+|      0  1  2  3  4  5                0  1  2  3  4  5                 |
+|                                                                       |
+|=======================================================================|
+|(3) The left foot has had the element at rpos shifted down, and the    |
+|    right foot has stepped to the next node. Note that rtot has been   |
+|    updated to 4, the right node has had its count zeroed out, and     |
+|    rtot has been updated to the right node's original count.          |
+|                                                                       |
+|                                     [rpos = 1]                        |
+|                                         |                   [rtot = 4]|
+|  +-+-left-------------+---+      +-+-right------------+---+      +-+- |
+|  |1|[g][h][_][_][_][_]|(2)| ---> |2|[_][i][j][k][_][_]|(0)| ---> |3|[ |
+|  +-+------------------+---+      +-+------------------+---+      +-+- |
+|      0  1  2  3  4  5                0  1  2  3  4  5                 |
+|                                                                       |
+=======================================================================*/
+// Once the deque has been compacted, remove all the extra nodes from the
+// end of the list.
+
+/*******************************************************************************
+========================= Recommended Helper Functions =========================
+*******************************************************************************/
+
+// split
+// This helper function takes a full node and splits into two nodes of an
+// aproximately equivalent number of elements.
+// First, create a new node to split the original node into.
+// Calculate the index from which to move elements over from. This should
+// account for an element being appended to the second node after the
+// function has been called. If you're implementing this with overflow,
+// you should have already worked out how the overflow gets assigned its
+// position.
+// Loop through the elements from the index in the first node, transferring
+// them each to the newly added node. Update the added node's count during
+// the loop.
+    /*
+      (0) Initial state, with the full node that was passed in.
+
+           +-+-node----------+---+      +-+-
+           |#|[a][b][c][d][e]|(5)| ---> |#|[
+           +-+-0--1--2--3--4-+---+      +-+-
+
+      (1) The second node has been created and elements are being transferred
+          to it.
+
+                      [index = 3]
+                        |
+           +-+-node----------+---+      +-+-
+           |#|[a][b][c][d][e]|(5)| ---> |#|[
+           +-+-0--1--2--3--4-+---+      +-+-
+                ________|
+               |
+           +-+-added---------+---+
+           |#|[_][_][_][_][_]|(0)| ---> [NULL]
+           +-+-0--1--2--3--4-+---+
+
+      (2) The elements have been transferred to the added node and the count of
+          the added node has been updated.
+
+           +-+-node----------+---+      +-+-
+           |#|[a][b][c][_][_]|(5)| ---> |#|[
+           +-+-0--1--2--3--4-+---+      +-+-
+
+           +-+-added---------+---+
+           |#|[d][e][_][_][_]|(2)| ---> [NULL]
+           +-+-0--1--2--3--4-+---+
+    */
+// Set the count of the original node to index, and insert the added node
+// immediately after the original node.
+
+// findElement
+// This function takes a global index to find in the deque and must return
+// both a pointer to the node in the list and the local index of the element
+// in the returned node.
+// Clearly returning multiple variables is a *small* challenge in C and C++,
+// so you will have to find a way to work around that.
+// The algorithm for this function is focused around looping through the list
+// and tracking the total number of elements stored before the current
+// node. I used a counter and added each node's count until I passed the
+// desired global index.
+// Because each node in the list only stores the number of elements it is
+// using actively, the count of each has to be added individually to keep an
+// accurate count of the number of elements that have been stepped over.
+
+// shiftUp
+// This helper function is almost identical to one that was particularly
+// useful for the CS170 Vector lab. It uses a simple swap algorithm to swap
+// every element between the index and the last element in the node's array
+// in place.
+// Make sure your bound-checking is good and you have accurately defined the
+// limits of your memory. If you find a wrong value somewhere unexpected,
+// you probably have the index limit wrong somehow.
+/*
+      (0) Initial state of the node passed in. Shifting everything right from
+          the third element.
+
+              [index = 2]
+                   |
+           +-node----------------------+
+           |[a][b][c][d][e][f][g][h][i]|
+           +-0--1--2--3--4--5--6--7--8-+
+
+      (1) First pass of the loop, swapping the index with the loop count.
+
+        [index = 2]   [lc = 3]
+                  \    /
+           +-node----------------------+
+           |[a][b][d][c][e][f][g][h][i]|
+           +-0--1--2--3--4--5--6--7--8-+
+
+      (2) Last pass of the loop, swapping the index with the last element.
+          Notice that the third element, the index, now holds the value that
+          would have been pushed off the end of the array. This is useful for
+          tracking the last element that would have been lost.
+
+        [index = 2]                  [lc = 3]
+                  \                   /
+           +-node----------------------+
+           |[a][b][i][c][d][e][f][g][h]|
+           +-0--1--2--3--4--5--6--7--8-+
+                    \
+                   [overflow element]
+    */
+// I would highly recommend writing a templatized swap function. It has uses
+// in most basic algorithms related to data structures.
+
+// shiftDown
+// The shift down helper function works very similarly to the shift up, by
+// swapping values in the node's array.
+// The key difference between the two is that the shift down function does
+// not have a fixed index. It should move down the array, swapping each
+// element with the element immediately before it. In this way, it still
+// preserves the data it is writing over, but does so by shifting it from
+// the start of the range to the end rather than the opposited direction.
