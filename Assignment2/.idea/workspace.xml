@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="Assignment2" targetName="Assignment2" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="332ebea8-002f-49b9-8dbe-749e1b6c1782" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../Homework/in2post-files/infix2postfix.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Assignment1/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Assignment1/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Assignment1/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../Assignment1/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Assignment1/ObjectAllocator" beforeDir="false" afterPath="$PROJECT_DIR$/../Assignment1/ObjectAllocator" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Assignment1/src/ObjectAllocator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Assignment1/src/ObjectAllocator.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Assignment1/src/driver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Assignment1/src/driver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/driver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/driver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lariat.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/lariat.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lariat.h" beforeDir="false" afterPath="$PROJECT_DIR$/lariat.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Homework/in2post-files/Makefile2" beforeDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FileEditorManager">
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="75">
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/driver.cpp">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-484">
+                  <caret line="825" column="22" selection-start-line="825" selection-start-column="22" selection-end-line="825" selection-end-column="22" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/lariat.cpp">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="349">
+                  <caret line="341" selection-start-line="341" selection-end-line="341" />
+                  <folding>
+                    <element signature="e#0#19#0" expanded="true" />
+                    <element signature="e#93#115#0" expanded="true" />
+                    <element signature="e#653#675#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/handout.txt">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-183">
+                  <caret line="442" column="36" lean-forward="true" selection-start-line="442" selection-start-column="36" selection-end-line="442" selection-end-column="36" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/lariat.h">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="122">
+                  <caret line="89" column="16" selection-start-line="89" selection-start-column="13" selection-end-line="89" selection-end-column="17" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/lariat.cpp">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="243">
+                  <caret line="394" column="31" lean-forward="true" selection-start-line="394" selection-start-column="31" selection-end-line="394" selection-end-column="31" />
+                  <folding>
+                    <element signature="e#0#19#0" expanded="true" />
+                    <element signature="e#93#115#0" expanded="true" />
+                    <element signature="e#84#643#0" />
+                    <element signature="e#653#675#0" expanded="true" />
+                    <element signature="e#1306#1897#0" />
+                    <element signature="e#1899#2463#0" />
+                    <element signature="e#2465#2815#0" />
+                    <element signature="e#2817#3157#0" />
+                    <element signature="e#3159#3297#0" />
+                    <element signature="e#4939#5059#0" />
+                    <element signature="e#5061#5206#0" />
+                    <element signature="e#5208#5307#0" />
+                    <element signature="e#5309#5567#0" />
+                    <element signature="e#5546#5626#0" />
+                    <element signature="e#7899#8216#0" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>Exception</find>
+      <find>findElement</find>
+      <find>first</find>
+      <find>LariatIndex</find>
+      <find>operator=</find>
+      <find>size_t</find>
+      <find>push_back</find>
+      <find>asize_</find>
+      <find>findEle</find>
+      <find>erase</find>
+      <find>shiftRight</find>
+      <find>count--</find>
+      <find>std::ti</find>
+      <find>CreateNode</find>
+      <find>find</find>
+      <find>throw</find>
+      <find>pop_back</find>
+      <find>compact</find>
+      <find>int a</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/handout.txt" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/Makefile" />
+        <option value="$PROJECT_DIR$/lariat.h" />
+        <option value="$PROJECT_DIR$/driver.cpp" />
+        <option value="$PROJECT_DIR$/lariat.cpp" />
+      </list>
+    </option>
+  </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="ProjectConfigurationFiles">
+    <option name="files">
+      <list>
+        <option value="$PROJECT_DIR$/.idea/Assignment2.iml" />
+        <option value="$PROJECT_DIR$/.idea/misc.xml" />
+        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
+        <option value="$PROJECT_DIR$/.idea/modules.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="5" />
+    <option name="y" value="40" />
+    <option name="width" value="1346" />
+    <option name="height" value="688" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Assignment2" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Assignment2" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="reference.idesettings.debugger.python" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="Assignment2" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="24" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Assignment2" TARGET_NAME="Assignment2" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Assignment2" RUN_TARGET_NAME="Assignment2">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="332ebea8-002f-49b9-8dbe-749e1b6c1782" name="Default Changelist" comment="" />
+      <created>1581204649417</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1581204649417</updated>
+      <workItem from="1581204651018" duration="7821000" />
+      <workItem from="1581217405998" duration="10124000" />
+      <workItem from="1581228378817" duration="10675000" />
+      <workItem from="1581291643002" duration="20835000" />
+      <workItem from="1581635354684" duration="18544000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="67999000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="-1" width="1366" height="728" extended-state="6" />
+    <layout>
+      <window_info id="Favorites" order="0" side_tool="true" />
+      <window_info content_ui="combo" id="Project" order="1" weight="0.2530303" />
+      <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" order="0" weight="0.27918783" />
+      <window_info anchor="bottom" id="Event Log" order="1" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="2" weight="0.32994923" />
+      <window_info anchor="bottom" id="CMake" order="3" />
+      <window_info anchor="bottom" id="Message" order="4" />
+      <window_info anchor="bottom" id="Find" order="5" weight="0.32994923" />
+      <window_info anchor="bottom" id="Database Changes" order="6" />
+      <window_info anchor="bottom" id="Run" order="7" weight="0.5177665" />
+      <window_info anchor="bottom" id="Debug" order="8" weight="0.22673436" />
+      <window_info anchor="bottom" id="Cvs" order="9" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="10" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="11" weight="0.32994923" />
+      <window_info anchor="bottom" id="Messages" order="12" weight="0.32994923" />
+      <window_info anchor="right" id="make" order="0" weight="0.32954547" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Database" order="2" />
+      <window_info anchor="right" id="Ant Build" order="3" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="4" weight="0.25" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="Favorites" order="0" side_tool="true" />
+      <window_info content_ui="combo" id="Project" order="1" weight="0.2530303" />
+      <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" order="0" weight="0.27918783" />
+      <window_info anchor="bottom" id="Event Log" order="1" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="2" weight="0.32994923" />
+      <window_info anchor="bottom" id="CMake" order="3" />
+      <window_info anchor="bottom" id="Message" order="4" />
+      <window_info active="true" anchor="bottom" id="Find" order="5" visible="true" weight="0.32994923" />
+      <window_info anchor="bottom" id="Database Changes" order="6" />
+      <window_info anchor="bottom" id="Run" order="7" weight="0.5177665" />
+      <window_info anchor="bottom" id="Debug" order="8" weight="0.37394246" />
+      <window_info anchor="bottom" id="Cvs" order="9" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="10" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="11" weight="0.32994923" />
+      <window_info anchor="bottom" id="Messages" order="12" weight="0.32994923" />
+      <window_info anchor="right" id="make" order="0" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Database" order="2" />
+      <window_info anchor="right" id="Ant Build" order="3" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="4" weight="0.25" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="CMakeRunConfiguration">
+        <watch expression="this-&gt;head_" />
+        <watch expression="this-&gt;tail_" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Makefile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-273">
+          <caret line="2" column="87" lean-forward="true" selection-start-line="2" selection-start-column="70" selection-end-line="2" selection-end-column="87" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/handout.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-183">
+          <caret line="442" column="36" lean-forward="true" selection-start-line="442" selection-start-column="36" selection-end-line="442" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lariat.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="122">
+          <caret line="89" column="16" selection-start-line="89" selection-start-column="13" selection-end-line="89" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/driver.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-484">
+          <caret line="825" column="22" selection-start-line="825" selection-start-column="22" selection-end-line="825" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lariat.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="243">
+          <caret line="394" column="31" lean-forward="true" selection-start-line="394" selection-start-column="31" selection-end-line="394" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#93#115#0" expanded="true" />
+            <element signature="e#84#643#0" />
+            <element signature="e#653#675#0" expanded="true" />
+            <element signature="e#1306#1897#0" />
+            <element signature="e#1899#2463#0" />
+            <element signature="e#2465#2815#0" />
+            <element signature="e#2817#3157#0" />
+            <element signature="e#3159#3297#0" />
+            <element signature="e#4939#5059#0" />
+            <element signature="e#5061#5206#0" />
+            <element signature="e#5208#5307#0" />
+            <element signature="e#5309#5567#0" />
+            <element signature="e#5546#5626#0" />
+            <element signature="e#7899#8216#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

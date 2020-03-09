@@ -1083,7 +1083,7 @@ void DoStudents(unsigned padding, bool printall)
     else
       cout << "Exception thrown from Allocate (2) in DoStudents."  << endl;
 
-      break;
+    break;
     }
     catch(...)
     {

@@ -1,0 +1,78 @@
+Implement RummiKub solver as discussed.
+You get a hand: a collection of tiles (see definition of Tile).
+You have to answer a question whether it is possible to play ALL
+of them using legal runs and groups.
+
+Tile:
+denomination 0,1,2,...,11,12
+color        R,G,B,Y (red, green, blue, yellow) see "enum Color"
+
+Group: a sequence
+1) of 3 or 4 tiles
+2) same denominations
+3) no tiles of the same color
+Legal
+3-R 3-B 3-G
+12-R 12-B 12-G 12-Y
+Illegal
+3-R 3-B too short
+3-R 3-B 4-G not the same denomination
+12-R 12-B 12-G 12-G - same color used twice or more times
+
+Run (classical): a sequence 
+1) of 3 or more tiles
+2) all tiles have the same color
+3) denomination are consecutive
+Examples:
+Legal 
+2-R 3-R 4-R
+4-B 5-B 6-B 7-B 8-B
+Illegal
+2-R 3-R - too short
+4-B 5-B 6-B 7-R - not the same color
+
+I'll use a slightly generalized definition of a run:
+a run is a sequence that is made of several classical runs of the same color.
+
+Legal:
+2-R 3-R 4-R 7-R 8-R 9-R (two classical runs)
+Illegal
+2-R 3-R 4-R 7-G 8-G 9-G (not same color)
+
+Algorithm:
+brute-force recursion: for each next tile you have the following options
+1) add it to an existing run with the same color as tile and tile's denomination is not yet in the run
+2) add it to an existing group with the same denomiation as tile and tile's color is not yet in the group
+3) create a new run
+4) create a new group
+
+solve( ... ) 
+{
+    // base case
+    // out of tiles - check if runs and groups are legal
+    // return true if yest and exit
+
+    Action actions[] = GetOptions();
+
+    for ( action : actions ) {
+        if action is legal execute it
+        solve( ... ); // recursive call
+        if solved - return true;
+        undo the action
+    }
+
+    return false; // could not find place for current tile - backtrack
+}
+
+Note that as the number of runs and groups grows, so is the number of options
+above, with 3 runs and 4 groups it will be up to 3+4+1+1=9 options - i.e. branching
+factor grows with the depth of the tree. The worst case scenario is 2 options for 
+the first tile, 3 for the next, etc, so the maximum for the total number of leaf
+nodes is 2*3*...*n = n! where n is the number of tile.
+
+Expected time:
+for test3 I get times from 0.01s to 4s. I'll use average: 
+in my tests I get about 0.5 sec per test:
+
+using CygWin to run 1000 tests and time them:
+time for((i=0;i<1000;++i)); do echo $i; ./gcc0.exe 3 &> /dev/null; done

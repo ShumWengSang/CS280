@@ -1,0 +1,12 @@
+successor of 1 is 3
+successor of 3 is 4
+successor of 4 is 5
+successor of 5 is 7
+successor of 7 is 9
+successor of 9 is 10
+successor of 10 is 16
+successor of 16 is 18
+successor of 18 is 19
+successor of 19 is 20
+successor of 20 is NULL
+INT comparisons 57

@@ -1,0 +1,87 @@
+In this lab you will implement successor function for binary search tree:
+Node* successor(Node* pRoot, INT key);
+pRoot        - root of the binary search tree
+key          - value to find
+return value - pointer to a node containing the successor of key, 
+               or NULL if key is the maximum key in the tree.
+
+Algorithm to implement:
+1) find node containing key
+2) a) if the node has right child, successor is the minimum node in the right subtree
+   b) otherwise, successor is the first ancestor of the node, which is reached through left link
+      special case - following parent pointers you have reached the root of the tree and all parents
+      were reached through right pointer - no successor, key was maximum key.
+        9
+      /   \
+     5     16
+    / \    /  \
+   3   7  10    20
+  / \          /
+ 1   4       18
+              \
+               19
+successor of 16: since right pointer is not null, is the minimum of tree rooted at 20. Thus 18.
+successor of 4 : since right pointer is null, go up to 3 (reached through right pointer, so continue),
+                                              go up to 5 (reached through left pointer, so is the successor).
+successor of 20: since right pointer is null, go up to 16 (reached through right pointer, so continue),
+                                              go up to 9 (reached through right pointer, so continue),
+                                              go up to NULL - no successor
+
+test0 and test1 use struct Node which has parent pointer
+
+Node* successor(Node* pRoot, INT key) 
+{
+    if ( pRoot->key == key ) { // data comparison
+        if (pRoot->right) {
+            // implement algorithm part 1)
+        } else {
+            // implement algorithm part 2)
+        }
+    }
+
+    if (pRoot->key > key) { // data comparison
+        return successor( pRoot->left, key);
+    }
+    else {
+        return successor( pRoot->right, key);
+    }
+}
+
+The reason I am using INT is to be able to count the number of comparisons you perform on data.
+The idea is that some functionality (especially in part 2) of the algorithm may be implemented
+by either pointer comparison or by data comparison. Since data may be much bigger size then
+pointer, pointer comparison should be preferred. I have test2 which is identical
+to test1 with only one extra line that prints total number of comparisons of data. The above 
+code has all data comparisons that are required - basically to get points for test2 you 
+have to implement the rest of the function working with pointers only.
+
+Extra credit:
+test3 and test4 use struct Node2 which does not have parent pointer. 
+The idea is to rewrite successor to
+Node2* successor2(Node2* pRoot, INT key);
+but instead of using parent pointer in part 2) of the algorithm you have to modify your
+code to pay attention whether recursive call returns from left subtree or right subtree:
+Node2* successor2(Node2* pRoot, INT key) 
+{
+    if ( pRoot->key == key ) {
+        if (pRoot->right) {
+            // easy
+        } else {
+            // ??????
+        } 
+    }
+
+    if (pRoot->key > key) {
+        successor2( pRoot->left, key);
+        // returning from left
+        // ??????
+    } else {
+        successor2( pRoot->right, key);
+        // returning from right
+        // ??????
+    }
+}
+
+test5 is test4 + checks the number of comparisons on data.
+
+See weights of tests online.

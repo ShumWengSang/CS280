@@ -36,7 +36,7 @@ clean:
 	-rm -rf $(OBJDIR) $(TARGET_FILE)
 
 diff:
-	kompare -c debug.txt output-sample-zeros-ec-LP64.txt
+	diff debug.txt output-sample-zeros-ec-LP64.txt --strip-trailing-cr
 	
 memchk:
 	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(TARGET_FILE)

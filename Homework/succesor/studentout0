@@ -1,0 +1,5 @@
+successor of 1 is 3
+successor of 3 is 4
+successor of 4 is 5
+successor of 5 is 7
+successor of 7 is NULL

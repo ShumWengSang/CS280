@@ -1048,7 +1048,7 @@ void test24()
     // expected output - NONE
     // stress testing and correctness
     run_scenario_cmp_to_vector<100>( // node size
-            2000,      // num operations
+            100,      // num operations
             4, 1,       // insert, erase
             4, 2,       // pushfront, pushback
             1, 1,       // popfront, popback

@@ -1,0 +1,12 @@
+Using example from class - calculation of classical Catalan number,
+implement 
+catalan3( int N ) - number of trees of size N with branching factor 3
+catalan4( int N ) - number of trees of size N with branching factor 4
+
+Extra credit:
+catalan( int N, int b)
+number of trees of size N with branching factor b.
+
+Idea: by implementing catalan3 and catalan4 you should have noticed that you
+will need an unknown number (b) of nested loops. This is possible with (another)
+recursion.

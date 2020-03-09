@@ -1,0 +1,6 @@
+==20440== 
+==20440== Process terminating with default action of signal 11 (SIGSEGV)
+==20440==  Bad permissions for mapped region at address 0x51B70A0
+==20440==    at 0x51B70A0: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==20440==    by 0x1093A5: main (in /home/roland/Documents/CS280/Homework/Phone2Words/Program)
+Segmentation fault (core dumped)

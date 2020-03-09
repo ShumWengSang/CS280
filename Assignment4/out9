@@ -1,0 +1,18 @@
+              10 -> right-right grandchild
+              /
+       5 -> right child
+       /
+              \
+              4 -> right-left grandchild
+3 -> root
+       \
+       2 -> left child
+              \
+              1 -> left-left grandchild
+
+right child
+after PRE-incr right-right grandchild
+------------------
+right child
+after POST-incr right child
+after sequence point right-right grandchild

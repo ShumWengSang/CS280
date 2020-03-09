@@ -1,0 +1,11 @@
+successor2 of 1 is 3
+successor2 of 3 is 4
+successor2 of 4 is 5
+successor2 of 5 is 7
+successor2 of 7 is 9
+successor2 of 9 is 10
+successor2 of 10 is 16
+successor2 of 16 is 18
+successor2 of 18 is 19
+successor2 of 19 is 20
+successor2 of 20 is NULL

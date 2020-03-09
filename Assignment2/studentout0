@@ -1,0 +1,139 @@
+-------- test0 --------
+Node starting (count 1)
+0 -> 1
+-----------
+
+Node starting (count 2)
+0 -> 1
+1 -> 2
+-----------
+
+Node starting (count 3)
+0 -> 1
+1 -> 2
+2 -> 3
+-----------
+
+Node starting (count 4)
+0 -> 1
+1 -> 2
+2 -> 3
+3 -> 4
+-----------
+
+Node starting (count 5)
+0 -> 1
+1 -> 2
+2 -> 3
+3 -> 4
+4 -> 5
+-----------
+
+Node starting (count 3)
+0 -> 1
+1 -> 2
+2 -> 3
+-----------
+Node starting (count 3)
+3 -> 4
+4 -> 5
+5 -> 6
+-----------
+
+Node starting (count 3)
+0 -> 1
+1 -> 2
+2 -> 3
+-----------
+Node starting (count 4)
+3 -> 4
+4 -> 5
+5 -> 6
+6 -> 7
+-----------
+
+Node starting (count 3)
+0 -> 1
+1 -> 2
+2 -> 3
+-----------
+Node starting (count 5)
+3 -> 4
+4 -> 5
+5 -> 6
+6 -> 7
+7 -> 8
+-----------
+
+Node starting (count 3)
+0 -> 1
+1 -> 2
+2 -> 3
+-----------
+Node starting (count 3)
+3 -> 4
+4 -> 5
+5 -> 6
+-----------
+Node starting (count 3)
+6 -> 7
+7 -> 8
+8 -> 9
+-----------
+
+Node starting (count 3)
+0 -> 1
+1 -> 2
+2 -> 3
+-----------
+Node starting (count 3)
+3 -> 4
+4 -> 5
+5 -> 6
+-----------
+Node starting (count 4)
+6 -> 7
+7 -> 8
+8 -> 9
+9 -> 10
+-----------
+
+Node starting (count 3)
+0 -> 1
+1 -> 2
+2 -> 3
+-----------
+Node starting (count 3)
+3 -> 4
+4 -> 5
+5 -> 6
+-----------
+Node starting (count 5)
+6 -> 7
+7 -> 8
+8 -> 9
+9 -> 10
+10 -> 11
+-----------
+
+Node starting (count 3)
+0 -> 1
+1 -> 2
+2 -> 3
+-----------
+Node starting (count 3)
+3 -> 4
+4 -> 5
+5 -> 6
+-----------
+Node starting (count 3)
+6 -> 7
+7 -> 8
+8 -> 9
+-----------
+Node starting (count 3)
+9 -> 10
+10 -> 11
+11 -> 12
+-----------
+

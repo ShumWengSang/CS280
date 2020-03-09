@@ -1,0 +1,33 @@
+HOW TO MEMORIZE PHONE NUMBER
+
+Problem statement: 
+write a program that outputs all possible 
+combinations of a phone number using the keypad digit to 
+character correspondence:
+
+Most phones have the following key to character(s) mapping:
+0 -> 0
+1 -> 1
+2 -> a,b,c
+3 -> d,e,f
+4 -> g,h,i
+5 -> j,k,l
+6 -> m,n,o
+7 -> p,q,r,s
+8 -> t,u,v
+9 -> w,x,y,z
+
+Which allows one to create a word instead from a sequence of numbers (phone number):
+
+number: 865737
+8 - choose V
+6 - choose O
+5 - choose L
+7 - choose P
+3 - choose E
+7 - choose R
+
+For this lab you will create a vector of all possible combinations of
+characters for a given phone number.  
+
+Note that driver uses 2 different keypad mappings.

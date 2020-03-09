@@ -1,0 +1,42 @@
+For this lab you will create 3 search functions for generic trees (i.e. NOT binary search)
+    1) recursive depth first search: 
+       looks at current node, if it is not a goal, call recursively on all children (left-to-right)
+    2) iterative depth first search:
+       create a container, place root into the container
+       while container is not empty, pop the node, check if it is goal, 
+       terminate and return if it is,
+       otherwise continue
+    3) iterative deapth first search:
+       same as 2) but different container
+
+Tests:
+some tests check basic correctness test0-test8 (see comments in driver.cpp)
+some check for specific (to DFS or BFS) properties.
+
+BFS property: if tree contains multiple goals, the goal that is closer 
+to the root will be found first.
+    
+         r
+       /   \
+      .     g2   <-- BFS finds this node first
+      |
+      .
+      g1
+This is a very strong and useful property of an algorithm called "optimality".
+
+But BFS requires a large container to achieve that.
+
+
+
+DFS does not require large containers, but also does not optimality.
+For example:
+         r
+       /   \
+      .     g2   
+      |
+      .
+      g1   <-- DFS finds this node first
+
+The above depends which branch DFS will explore first, in the example and driver 
+I assume DFS (both recursively and iterative) will traverse subtrees in left-to-right manner.
+Same order as in children array.

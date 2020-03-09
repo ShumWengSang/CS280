@@ -1,0 +1,966 @@
+-------- test23 --------
+Insert at 0 value 74
+Node starting (count 1)
+0 -> 74
+-----------
+
+Insert at 0 value 64
+Node starting (count 2)
+0 -> 64
+1 -> 74
+-----------
+
+Pushfront  value 60
+Node starting (count 3)
+0 -> 60
+1 -> 64
+2 -> 74
+-----------
+
+Compact 
+Node starting (count 3)
+0 -> 60
+1 -> 64
+2 -> 74
+-----------
+
+Compact 
+Node starting (count 3)
+0 -> 60
+1 -> 64
+2 -> 74
+-----------
+
+Pushback  value 36
+Node starting (count 4)
+0 -> 60
+1 -> 64
+2 -> 74
+3 -> 36
+-----------
+
+Insert at 0 value 98
+Node starting (count 5)
+0 -> 98
+1 -> 60
+2 -> 64
+3 -> 74
+4 -> 36
+-----------
+
+Find 2. Result 5
+Node starting (count 5)
+0 -> 98
+1 -> 60
+2 -> 64
+3 -> 74
+4 -> 36
+-----------
+
+Compact 
+Node starting (count 5)
+0 -> 98
+1 -> 60
+2 -> 64
+3 -> 74
+4 -> 36
+-----------
+
+Compact 
+Node starting (count 5)
+0 -> 98
+1 -> 60
+2 -> 64
+3 -> 74
+4 -> 36
+-----------
+
+Pushback  value 99
+Node starting (count 6)
+0 -> 98
+1 -> 60
+2 -> 64
+3 -> 74
+4 -> 36
+5 -> 99
+-----------
+
+Pushback  value 50
+Node starting (count 4)
+0 -> 98
+1 -> 60
+2 -> 64
+3 -> 74
+-----------
+Node starting (count 3)
+4 -> 36
+5 -> 99
+6 -> 50
+-----------
+
+Pushfront  value 56
+Node starting (count 5)
+0 -> 56
+1 -> 98
+2 -> 60
+3 -> 64
+4 -> 74
+-----------
+Node starting (count 3)
+5 -> 36
+6 -> 99
+7 -> 50
+-----------
+
+Pushback  value 77
+Node starting (count 5)
+0 -> 56
+1 -> 98
+2 -> 60
+3 -> 64
+4 -> 74
+-----------
+Node starting (count 4)
+5 -> 36
+6 -> 99
+7 -> 50
+8 -> 77
+-----------
+
+Pushfront  value 41
+Node starting (count 6)
+0 -> 41
+1 -> 56
+2 -> 98
+3 -> 60
+4 -> 64
+5 -> 74
+-----------
+Node starting (count 4)
+6 -> 36
+7 -> 99
+8 -> 50
+9 -> 77
+-----------
+
+Pushfront  value 7
+Node starting (count 4)
+0 -> 7
+1 -> 41
+2 -> 56
+3 -> 98
+-----------
+Node starting (count 3)
+4 -> 60
+5 -> 64
+6 -> 74
+-----------
+Node starting (count 4)
+7 -> 36
+8 -> 99
+9 -> 50
+10 -> 77
+-----------
+
+Index position 1
+Node starting (count 4)
+0 -> 7
+1 -> 41
+2 -> 56
+3 -> 98
+-----------
+Node starting (count 3)
+4 -> 60
+5 -> 64
+6 -> 74
+-----------
+Node starting (count 4)
+7 -> 36
+8 -> 99
+9 -> 50
+10 -> 77
+-----------
+
+Pushfront  value 62
+Node starting (count 5)
+0 -> 62
+1 -> 7
+2 -> 41
+3 -> 56
+4 -> 98
+-----------
+Node starting (count 3)
+5 -> 60
+6 -> 64
+7 -> 74
+-----------
+Node starting (count 4)
+8 -> 36
+9 -> 99
+10 -> 50
+11 -> 77
+-----------
+
+Insert at 7 value 59
+Node starting (count 5)
+0 -> 62
+1 -> 7
+2 -> 41
+3 -> 56
+4 -> 98
+-----------
+Node starting (count 4)
+5 -> 60
+6 -> 64
+7 -> 59
+8 -> 74
+-----------
+Node starting (count 4)
+9 -> 36
+10 -> 99
+11 -> 50
+12 -> 77
+-----------
+
+Insert at 2 value 7
+Node starting (count 6)
+0 -> 62
+1 -> 7
+2 -> 7
+3 -> 41
+4 -> 56
+5 -> 98
+-----------
+Node starting (count 4)
+6 -> 60
+7 -> 64
+8 -> 59
+9 -> 74
+-----------
+Node starting (count 4)
+10 -> 36
+11 -> 99
+12 -> 50
+13 -> 77
+-----------
+
+Pushback  value 53
+Node starting (count 6)
+0 -> 62
+1 -> 7
+2 -> 7
+3 -> 41
+4 -> 56
+5 -> 98
+-----------
+Node starting (count 4)
+6 -> 60
+7 -> 64
+8 -> 59
+9 -> 74
+-----------
+Node starting (count 5)
+10 -> 36
+11 -> 99
+12 -> 50
+13 -> 77
+14 -> 53
+-----------
+
+Insert at 9 value 33
+Node starting (count 6)
+0 -> 62
+1 -> 7
+2 -> 7
+3 -> 41
+4 -> 56
+5 -> 98
+-----------
+Node starting (count 5)
+6 -> 60
+7 -> 64
+8 -> 59
+9 -> 33
+10 -> 74
+-----------
+Node starting (count 5)
+11 -> 36
+12 -> 99
+13 -> 50
+14 -> 77
+15 -> 53
+-----------
+
+Insert at 1 value 84
+Node starting (count 4)
+0 -> 62
+1 -> 84
+2 -> 7
+3 -> 7
+-----------
+Node starting (count 3)
+4 -> 41
+5 -> 56
+6 -> 98
+-----------
+Node starting (count 5)
+7 -> 60
+8 -> 64
+9 -> 59
+10 -> 33
+11 -> 74
+-----------
+Node starting (count 5)
+12 -> 36
+13 -> 99
+14 -> 50
+15 -> 77
+16 -> 53
+-----------
+
+Pushback  value 23
+Node starting (count 4)
+0 -> 62
+1 -> 84
+2 -> 7
+3 -> 7
+-----------
+Node starting (count 3)
+4 -> 41
+5 -> 56
+6 -> 98
+-----------
+Node starting (count 5)
+7 -> 60
+8 -> 64
+9 -> 59
+10 -> 33
+11 -> 74
+-----------
+Node starting (count 6)
+12 -> 36
+13 -> 99
+14 -> 50
+15 -> 77
+16 -> 53
+17 -> 23
+-----------
+
+Pushback  value 66
+Node starting (count 4)
+0 -> 62
+1 -> 84
+2 -> 7
+3 -> 7
+-----------
+Node starting (count 3)
+4 -> 41
+5 -> 56
+6 -> 98
+-----------
+Node starting (count 5)
+7 -> 60
+8 -> 64
+9 -> 59
+10 -> 33
+11 -> 74
+-----------
+Node starting (count 4)
+12 -> 36
+13 -> 99
+14 -> 50
+15 -> 77
+-----------
+Node starting (count 3)
+16 -> 53
+17 -> 23
+18 -> 66
+-----------
+
+Pushback  value 2
+Node starting (count 4)
+0 -> 62
+1 -> 84
+2 -> 7
+3 -> 7
+-----------
+Node starting (count 3)
+4 -> 41
+5 -> 56
+6 -> 98
+-----------
+Node starting (count 5)
+7 -> 60
+8 -> 64
+9 -> 59
+10 -> 33
+11 -> 74
+-----------
+Node starting (count 4)
+12 -> 36
+13 -> 99
+14 -> 50
+15 -> 77
+-----------
+Node starting (count 4)
+16 -> 53
+17 -> 23
+18 -> 66
+19 -> 2
+-----------
+
+Pushfront  value 67
+Node starting (count 5)
+0 -> 67
+1 -> 62
+2 -> 84
+3 -> 7
+4 -> 7
+-----------
+Node starting (count 3)
+5 -> 41
+6 -> 56
+7 -> 98
+-----------
+Node starting (count 5)
+8 -> 60
+9 -> 64
+10 -> 59
+11 -> 33
+12 -> 74
+-----------
+Node starting (count 4)
+13 -> 36
+14 -> 99
+15 -> 50
+16 -> 77
+-----------
+Node starting (count 4)
+17 -> 53
+18 -> 23
+19 -> 66
+20 -> 2
+-----------
+
+Pushback  value 3
+Node starting (count 5)
+0 -> 67
+1 -> 62
+2 -> 84
+3 -> 7
+4 -> 7
+-----------
+Node starting (count 3)
+5 -> 41
+6 -> 56
+7 -> 98
+-----------
+Node starting (count 5)
+8 -> 60
+9 -> 64
+10 -> 59
+11 -> 33
+12 -> 74
+-----------
+Node starting (count 4)
+13 -> 36
+14 -> 99
+15 -> 50
+16 -> 77
+-----------
+Node starting (count 5)
+17 -> 53
+18 -> 23
+19 -> 66
+20 -> 2
+21 -> 3
+-----------
+
+Pushfront  value 34
+Node starting (count 6)
+0 -> 34
+1 -> 67
+2 -> 62
+3 -> 84
+4 -> 7
+5 -> 7
+-----------
+Node starting (count 3)
+6 -> 41
+7 -> 56
+8 -> 98
+-----------
+Node starting (count 5)
+9 -> 60
+10 -> 64
+11 -> 59
+12 -> 33
+13 -> 74
+-----------
+Node starting (count 4)
+14 -> 36
+15 -> 99
+16 -> 50
+17 -> 77
+-----------
+Node starting (count 5)
+18 -> 53
+19 -> 23
+20 -> 66
+21 -> 2
+22 -> 3
+-----------
+
+Pushback  value 30
+Node starting (count 6)
+0 -> 34
+1 -> 67
+2 -> 62
+3 -> 84
+4 -> 7
+5 -> 7
+-----------
+Node starting (count 3)
+6 -> 41
+7 -> 56
+8 -> 98
+-----------
+Node starting (count 5)
+9 -> 60
+10 -> 64
+11 -> 59
+12 -> 33
+13 -> 74
+-----------
+Node starting (count 4)
+14 -> 36
+15 -> 99
+16 -> 50
+17 -> 77
+-----------
+Node starting (count 6)
+18 -> 53
+19 -> 23
+20 -> 66
+21 -> 2
+22 -> 3
+23 -> 30
+-----------
+
+Pushfront  value 95
+Node starting (count 4)
+0 -> 95
+1 -> 34
+2 -> 67
+3 -> 62
+-----------
+Node starting (count 3)
+4 -> 84
+5 -> 7
+6 -> 7
+-----------
+Node starting (count 3)
+7 -> 41
+8 -> 56
+9 -> 98
+-----------
+Node starting (count 5)
+10 -> 60
+11 -> 64
+12 -> 59
+13 -> 33
+14 -> 74
+-----------
+Node starting (count 4)
+15 -> 36
+16 -> 99
+17 -> 50
+18 -> 77
+-----------
+Node starting (count 6)
+19 -> 53
+20 -> 23
+21 -> 66
+22 -> 2
+23 -> 3
+24 -> 30
+-----------
+
+Popfront 
+Node starting (count 3)
+0 -> 34
+1 -> 67
+2 -> 62
+-----------
+Node starting (count 3)
+3 -> 84
+4 -> 7
+5 -> 7
+-----------
+Node starting (count 3)
+6 -> 41
+7 -> 56
+8 -> 98
+-----------
+Node starting (count 5)
+9 -> 60
+10 -> 64
+11 -> 59
+12 -> 33
+13 -> 74
+-----------
+Node starting (count 4)
+14 -> 36
+15 -> 99
+16 -> 50
+17 -> 77
+-----------
+Node starting (count 6)
+18 -> 53
+19 -> 23
+20 -> 66
+21 -> 2
+22 -> 3
+23 -> 30
+-----------
+
+Pushback  value 55
+Node starting (count 3)
+0 -> 34
+1 -> 67
+2 -> 62
+-----------
+Node starting (count 3)
+3 -> 84
+4 -> 7
+5 -> 7
+-----------
+Node starting (count 3)
+6 -> 41
+7 -> 56
+8 -> 98
+-----------
+Node starting (count 5)
+9 -> 60
+10 -> 64
+11 -> 59
+12 -> 33
+13 -> 74
+-----------
+Node starting (count 4)
+14 -> 36
+15 -> 99
+16 -> 50
+17 -> 77
+-----------
+Node starting (count 4)
+18 -> 53
+19 -> 23
+20 -> 66
+21 -> 2
+-----------
+Node starting (count 3)
+22 -> 3
+23 -> 30
+24 -> 55
+-----------
+
+Pushfront  value 56
+Node starting (count 4)
+0 -> 56
+1 -> 34
+2 -> 67
+3 -> 62
+-----------
+Node starting (count 3)
+4 -> 84
+5 -> 7
+6 -> 7
+-----------
+Node starting (count 3)
+7 -> 41
+8 -> 56
+9 -> 98
+-----------
+Node starting (count 5)
+10 -> 60
+11 -> 64
+12 -> 59
+13 -> 33
+14 -> 74
+-----------
+Node starting (count 4)
+15 -> 36
+16 -> 99
+17 -> 50
+18 -> 77
+-----------
+Node starting (count 4)
+19 -> 53
+20 -> 23
+21 -> 66
+22 -> 2
+-----------
+Node starting (count 3)
+23 -> 3
+24 -> 30
+25 -> 55
+-----------
+
+Index position 9
+Node starting (count 4)
+0 -> 56
+1 -> 34
+2 -> 67
+3 -> 62
+-----------
+Node starting (count 3)
+4 -> 84
+5 -> 7
+6 -> 7
+-----------
+Node starting (count 3)
+7 -> 41
+8 -> 56
+9 -> 98
+-----------
+Node starting (count 5)
+10 -> 60
+11 -> 64
+12 -> 59
+13 -> 33
+14 -> 74
+-----------
+Node starting (count 4)
+15 -> 36
+16 -> 99
+17 -> 50
+18 -> 77
+-----------
+Node starting (count 4)
+19 -> 53
+20 -> 23
+21 -> 66
+22 -> 2
+-----------
+Node starting (count 3)
+23 -> 3
+24 -> 30
+25 -> 55
+-----------
+
+Erase at 10
+Node starting (count 4)
+0 -> 56
+1 -> 34
+2 -> 67
+3 -> 62
+-----------
+Node starting (count 3)
+4 -> 84
+5 -> 7
+6 -> 7
+-----------
+Node starting (count 3)
+7 -> 41
+8 -> 56
+9 -> 98
+-----------
+Node starting (count 4)
+10 -> 64
+11 -> 59
+12 -> 33
+13 -> 74
+-----------
+Node starting (count 4)
+14 -> 36
+15 -> 99
+16 -> 50
+17 -> 77
+-----------
+Node starting (count 4)
+18 -> 53
+19 -> 23
+20 -> 66
+21 -> 2
+-----------
+Node starting (count 3)
+22 -> 3
+23 -> 30
+24 -> 55
+-----------
+
+Pushback  value 81
+Node starting (count 4)
+0 -> 56
+1 -> 34
+2 -> 67
+3 -> 62
+-----------
+Node starting (count 3)
+4 -> 84
+5 -> 7
+6 -> 7
+-----------
+Node starting (count 3)
+7 -> 41
+8 -> 56
+9 -> 98
+-----------
+Node starting (count 4)
+10 -> 64
+11 -> 59
+12 -> 33
+13 -> 74
+-----------
+Node starting (count 4)
+14 -> 36
+15 -> 99
+16 -> 50
+17 -> 77
+-----------
+Node starting (count 4)
+18 -> 53
+19 -> 23
+20 -> 66
+21 -> 2
+-----------
+Node starting (count 4)
+22 -> 3
+23 -> 30
+24 -> 55
+25 -> 81
+-----------
+
+Pushfront  value 9
+Node starting (count 5)
+0 -> 9
+1 -> 56
+2 -> 34
+3 -> 67
+4 -> 62
+-----------
+Node starting (count 3)
+5 -> 84
+6 -> 7
+7 -> 7
+-----------
+Node starting (count 3)
+8 -> 41
+9 -> 56
+10 -> 98
+-----------
+Node starting (count 4)
+11 -> 64
+12 -> 59
+13 -> 33
+14 -> 74
+-----------
+Node starting (count 4)
+15 -> 36
+16 -> 99
+17 -> 50
+18 -> 77
+-----------
+Node starting (count 4)
+19 -> 53
+20 -> 23
+21 -> 66
+22 -> 2
+-----------
+Node starting (count 4)
+23 -> 3
+24 -> 30
+25 -> 55
+26 -> 81
+-----------
+
+Pushfront  value 71
+Node starting (count 6)
+0 -> 71
+1 -> 9
+2 -> 56
+3 -> 34
+4 -> 67
+5 -> 62
+-----------
+Node starting (count 3)
+6 -> 84
+7 -> 7
+8 -> 7
+-----------
+Node starting (count 3)
+9 -> 41
+10 -> 56
+11 -> 98
+-----------
+Node starting (count 4)
+12 -> 64
+13 -> 59
+14 -> 33
+15 -> 74
+-----------
+Node starting (count 4)
+16 -> 36
+17 -> 99
+18 -> 50
+19 -> 77
+-----------
+Node starting (count 4)
+20 -> 53
+21 -> 23
+22 -> 66
+23 -> 2
+-----------
+Node starting (count 4)
+24 -> 3
+25 -> 30
+26 -> 55
+27 -> 81
+-----------
+
+Insert at 18 value 86
+Node starting (count 6)
+0 -> 71
+1 -> 9
+2 -> 56
+3 -> 34
+4 -> 67
+5 -> 62
+-----------
+Node starting (count 3)
+6 -> 84
+7 -> 7
+8 -> 7
+-----------
+Node starting (count 3)
+9 -> 41
+10 -> 56
+11 -> 98
+-----------
+Node starting (count 4)
+12 -> 64
+13 -> 59
+14 -> 33
+15 -> 74
+-----------
+Node starting (count 5)
+16 -> 36
+17 -> 99
+18 -> 86
+19 -> 50
+20 -> 77
+-----------
+Node starting (count 4)
+21 -> 53
+22 -> 23
+23 -> 66
+24 -> 2
+-----------
+Node starting (count 4)
+25 -> 3
+26 -> 30
+27 -> 55
+28 -> 81
+-----------
+
