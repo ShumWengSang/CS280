@@ -168,7 +168,7 @@ void inserts_delete_random( int N, int num_iter,
         std::cout << map << "\n";
         std::cout << "---------------------------------------\n";
 #endif
-        if ( perform_checks and map.size() != map_content.size() ) {
+        if ( perform_checks && map.size() != map_content.size() ) {
             std::cout << "Wrong size\n";
         }
     }

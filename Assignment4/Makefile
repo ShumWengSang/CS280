@@ -3,7 +3,7 @@ PRG=gnu.exe
 GCC=g++
 GCCFLAGS=-Wall -Wextra -std=c++11 -Wold-style-cast -Woverloaded-virtual -Wsign-promo  -Wctor-dtor-privacy -Wnon-virtual-dtor  -Weffc++ -pedantic
 GCCOPTIMIZE=-O3
-OBJECTS0= bst-map.cpp
+OBJECTS0=
 DRIVER0=driver.cpp
 INCLUDE1=
 MSCINCLUDE=
