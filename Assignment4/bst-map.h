@@ -21,7 +21,7 @@ namespace CS280 {
 			Node* decrement();
 			Node* increment();
 
-			
+
 			// Returns a reference to either the left or right node.
 			// Node passed in HAS to 1) have a parent
 			static Node*& findNode(Node*);
@@ -123,12 +123,12 @@ namespace CS280 {
 		BSTmap_iterator find(BSTmap_iterator root, KEY_TYPE const& key);
 		VALUE_TYPE& emplaceFind(Node*& root, BSTmap_iterator parent, KEY_TYPE const& key);
 		void Clear(BSTmap_iterator node);
-
+		Node* Copy(Node* root);
 		void DeleteNode(Node* node);
 		void DestroyNode(Node* node);
 		Node* MakeNode(KEY_TYPE k, VALUE_TYPE val, Node* p,
-				Node* l = nullptr, Node* r = nullptr, int h = 0, int b = 0);
-		
+			Node* l = nullptr, Node* r = nullptr, int h = 0, int b = 0);
+
 		// printing functions
 		char getedgesymbol(const Node* node) const;
 		int getdepth(Node* node) const;

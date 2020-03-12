@@ -98,7 +98,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="avl-map.cpp" />
     <ClCompile Include="driver.cpp" />
   </ItemGroup>
   <ItemGroup>

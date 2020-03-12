@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "avl-map.h"
+
 namespace CS280
 {
 	// static data members
@@ -23,7 +23,7 @@ namespace CS280
 
 	// Node stuff
 	template<typename KEY_TYPE, typename VALUE_TYPE>
-	AVLmap<KEY_TYPE, VALUE_TYPE>::Node::Node(KEY_TYPE k, VALUE_TYPE val, AVLmap::Node* p, int h, int b,
+	CS280::AVLmap<KEY_TYPE, VALUE_TYPE>::Node::Node(KEY_TYPE k, VALUE_TYPE val, AVLmap::Node* p, int h, int b,
 		AVLmap::Node* l,
 		AVLmap::Node* r) : key(k), value(val), height(h), balance(b),
 		parent(p),
@@ -48,7 +48,7 @@ namespace CS280
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node* AVLmap<KEY_TYPE, VALUE_TYPE>::Node::last()
 	{
-		
+
 		Node* node = this;
 		while (node && node->right != nullptr)
 			node = node->right;
@@ -65,14 +65,14 @@ namespace CS280
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
-	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node* 
+	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node*
 		AVLmap<KEY_TYPE, VALUE_TYPE>::Node::decrement()
 	{
 		// Predecessor Function
 
 		Node* predecessor;
 		// If we have a left sub-tree
-		if(this->left)
+		if (this->left)
 		{
 			predecessor = this->left->last();
 		}
@@ -93,7 +93,7 @@ namespace CS280
 		{
 			// Find the minimum in the sub-tree at right side.
 			// Sub tree is leftest
-			return first();
+			return this->right->first();
 		}
 		else // If Right is null...
 		{
@@ -121,8 +121,8 @@ namespace CS280
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
-	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node*& 
-	AVLmap<KEY_TYPE, VALUE_TYPE>::Node::findNode(Node* node)
+	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node*&
+		AVLmap<KEY_TYPE, VALUE_TYPE>::Node::findNode(Node* node)
 	{
 		if (node->parent->right == node)
 			return node->parent->right;
@@ -142,8 +142,8 @@ namespace CS280
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
-	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node* 
-	AVLmap<KEY_TYPE, VALUE_TYPE>::Node::FindPredecessor()
+	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node*
+		AVLmap<KEY_TYPE, VALUE_TYPE>::Node::FindPredecessor()
 	{
 		// Go up to parent
 		Node* localparent = this->parent;
@@ -173,9 +173,9 @@ namespace CS280
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	void AVLmap<KEY_TYPE, VALUE_TYPE>::Clear(AVLmap_iterator node)
 	{
-		if(node->left)
+		if (node->left)
 			Clear(node->left);
-		if(node->right)
+		if (node->right)
 			Clear(node->right);
 		delete node.p_node;
 	}
@@ -188,25 +188,28 @@ namespace CS280
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap(const AVLmap& rhs)
 	{
-		(void)rhs;
+		size_ = 0;
+		pRoot = Copy(rhs.pRoot);
+
 		// Todo: Copy constructor
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	AVLmap<KEY_TYPE, VALUE_TYPE>& AVLmap<KEY_TYPE, VALUE_TYPE>::operator=(const AVLmap& rhs)
 	{
-		(void)rhs;
-		// TODO: insert operator assignment
-		// Clear all current nodes.
-		// Use a bread first for their nodes, make new nodes in ours.
-		
+		size_ = 0;
+		if (pRoot)
+		{
+			Clear(pRoot);
+		}
+		pRoot = Copy(rhs.pRoot);
 		return *this;
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	AVLmap<KEY_TYPE, VALUE_TYPE>::~AVLmap()
 	{
-		if(pRoot)
+		if (pRoot)
 			Clear(pRoot);
 	}
 
@@ -242,7 +245,7 @@ namespace CS280
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	typename AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator_const
-	AVLmap<KEY_TYPE, VALUE_TYPE>::begin() const
+		AVLmap<KEY_TYPE, VALUE_TYPE>::begin() const
 	{
 		if (pRoot)
 			return AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator_const(pRoot->first());
@@ -252,7 +255,7 @@ namespace CS280
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	typename AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator_const
-	AVLmap<KEY_TYPE, VALUE_TYPE>::end() const
+		AVLmap<KEY_TYPE, VALUE_TYPE>::end() const
 	{
 		return const_end_it;
 	}
@@ -267,7 +270,7 @@ namespace CS280
 		}
 		return AVLmap<KEY_TYPE, VALUE_TYPE>::const_end_it;
 	}
-	
+
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	typename AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator AVLmap<KEY_TYPE, VALUE_TYPE>::find(KEY_TYPE const& key)
 	{
@@ -282,7 +285,7 @@ namespace CS280
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator::AVLmap_iterator(Node* p) : p_node(p)
 	{
-		
+
 	}
 
 	// Assignment operator.
@@ -309,7 +312,9 @@ namespace CS280
 	typename AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator
 		AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator::operator++(int)
 	{
-		return AVLmap_iterator(this->p_node->increment());
+		AVLmap_iterator copy(*this);
+		++(*this); // or operator++();
+		return copy;
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
@@ -356,6 +361,7 @@ namespace CS280
 	typename AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator_const&
 		AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator_const::operator++()
 	{
+		// pre increment
 		p_node = p_node->increment();
 		return *this;
 	}
@@ -365,8 +371,9 @@ namespace CS280
 		AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator_const::operator++(int)
 	{
 		// TODO: Post increment
-		Node* node = p_node->increment();
-		return AVLmap_iterator_const(node);
+		AVLmap_iterator_const copy(*this);
+		++(*this); // or operator++();
+		return copy;
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
@@ -400,18 +407,18 @@ namespace CS280
 	/* figure out whether node is left or right child or root
 	 * used in print_backwards_padded
 	 */
-	 template<typename KEY_TYPE, typename VALUE_TYPE>
-	 char AVLmap<KEY_TYPE, VALUE_TYPE>::getedgesymbol(const Node *node) const
-	 {
-	     const Node *parent = node->parent;
-	     if (parent == nullptr) return '-';
-	     else return (parent->left == node) ? '\\' : '/';
-	 }
+	template<typename KEY_TYPE, typename VALUE_TYPE>
+	char AVLmap<KEY_TYPE, VALUE_TYPE>::getedgesymbol(const Node* node) const
+	{
+		const Node* parent = node->parent;
+		if (parent == nullptr) return '-';
+		else return (parent->left == node) ? '\\' : '/';
+	}
 
- /* this is another "ASCII-graphical" print, but using
-  * iterative function.
-  * Left branch of the tree is at the bottom
-  */
+	/* this is another "ASCII-graphical" print, but using
+	 * iterative function.
+	 * Left branch of the tree is at the bottom
+	 */
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	std::ostream& operator<<(std::ostream& os, AVLmap<KEY_TYPE, VALUE_TYPE> const& map)
 	{
@@ -464,9 +471,12 @@ namespace CS280
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
-	typename AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator AVLmap<KEY_TYPE, VALUE_TYPE>::find(AVLmap_iterator root, KEY_TYPE const& key)
+	typename AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap_iterator
+		AVLmap<KEY_TYPE, VALUE_TYPE>::find(AVLmap_iterator root, KEY_TYPE const& key)
 	{
-		if (key < root->Key())
+		if (!root.p_node)
+			return this->end_it;
+		else if (key < root->Key())
 			return find(root->left, key);
 		else if (root->Key() < key)
 			return find(root->right, key);
@@ -480,7 +490,7 @@ namespace CS280
 		// Base case
 		if (curretNode == nullptr)
 		{
-			curretNode = MakeNode(key, VALUE_TYPE {}, parent.p_node);
+			curretNode = MakeNode(key, VALUE_TYPE{}, parent.p_node);
 			return curretNode->Value();
 		}
 		// Case that we found
@@ -489,7 +499,7 @@ namespace CS280
 			return emplaceFind(curretNode->left, curretNode, key);
 		else if (curretNode->Key() < key)
 			return emplaceFind(curretNode->right, curretNode, key);
-		else 
+		else
 			return curretNode->Value();
 	}
 
@@ -508,41 +518,41 @@ namespace CS280
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
-  void AVLmap<KEY_TYPE, VALUE_TYPE>::erase(AVLmap_iterator it)
-  {
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::erase(AVLmap_iterator it)
+	{
 		DeleteNode(it.p_node);
-  }
+	}
 
-  template <typename KEY_TYPE, typename VALUE_TYPE>
-  void AVLmap<KEY_TYPE, VALUE_TYPE>::DeleteNode(Node* node)
-  {
-    // If node is a leaf node.
-    if (!node->left && !node->right)
-    {
-      if (node != pRoot)
-      {
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::DeleteNode(Node* node)
+	{
+		// If node is a leaf node.
+		if (!node->left && !node->right)
+		{
+			if (node != pRoot)
+			{
 				// Set our parents to nullptrs
-        Node*& leftOrRight = Node::findNode(node);
-        leftOrRight = nullptr;
-      }
+				Node*& leftOrRight = Node::findNode(node);
+				leftOrRight = nullptr;
+			}
 			else
 			{
 				pRoot = nullptr;
 			}
-      DestroyNode(node);
-    }
-    // Two children
-    else if (node->left && node->right)
-    {
+			DestroyNode(node);
+		}
+		// Two children
+		else if (node->left && node->right)
+		{
 			Node* successor = node->decrement();
 			// node copy successor
 			node->Value() = successor->Value();
 			node->key = successor->key;
 			DeleteNode(successor);
-    }
-    // If node only has one option
-    else
-    {
+		}
+		// If node only has one option
+		else
+		{
 			Node* child = (node->left) ? node->left : node->right;
 
 			if (node != pRoot)
@@ -557,13 +567,26 @@ namespace CS280
 				pRoot = child;
 			}
 			DestroyNode(node);
-    }
-  }
+		}
+	}
 
-  template <typename KEY_TYPE, typename VALUE_TYPE>
-  void AVLmap<KEY_TYPE, VALUE_TYPE>::DestroyNode(Node* node)
-  {
-    delete node;
-    size_--;
-  }
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::DestroyNode(Node* node)
+	{
+		delete node;
+		size_--;
+	}
+
+	template<typename KEY_TYPE, typename VALUE_TYPE>
+	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node*
+		AVLmap<KEY_TYPE, VALUE_TYPE>::Copy(AVLmap::Node* root)
+	{
+		// Base case
+		if (!root)
+			return nullptr;
+		Node* newNode = MakeNode(root->key, root->value, nullptr);
+		newNode->left = Copy(root->left);
+		newNode->right = Copy(root->right);
+		return newNode;
+	}
 }
