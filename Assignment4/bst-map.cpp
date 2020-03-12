@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "bst-map.h"
 namespace CS280
 {
 	// static data members
@@ -129,6 +130,17 @@ namespace CS280
 			return node->parent->left;
 	}
 
+	template<typename KEY_TYPE, typename VALUE_TYPE>
+	void BSTmap<KEY_TYPE, VALUE_TYPE>::Node::ShallowCopy(Node* lhs, Node* rhs)
+	{
+		lhs->balance = rhs->balance;
+		lhs->height = rhs->height;
+		lhs->key = rhs->key;
+		lhs->value = rhs->value;
+		lhs->left = rhs->left;
+		lhs->right = rhs->right;
+	}
+
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	typename BSTmap<KEY_TYPE, VALUE_TYPE>::Node* 
 	BSTmap<KEY_TYPE, VALUE_TYPE>::Node::FindPredecessor()
@@ -194,7 +206,8 @@ namespace CS280
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	BSTmap<KEY_TYPE, VALUE_TYPE>::~BSTmap()
 	{
-		Clear(pRoot);
+		if(pRoot)
+			Clear(pRoot);
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
@@ -495,72 +508,62 @@ namespace CS280
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
-	void BSTmap<KEY_TYPE, VALUE_TYPE>::erase(BSTmap_iterator it)
-	{
-	    if(it.p_node->parent)
-        {
-            Node *treeNode = Node::findNode(it.p_node);
-            DeleteNode(it.p_node);
-        }
-		else
-        {
-            DeleteNode(pRoot);
-        }
-	}
-	
-	template <typename KEY_TYPE, typename VALUE_TYPE>
-	void BSTmap<KEY_TYPE, VALUE_TYPE>::DeleteNode(Node*& node)
-	{
-// If node is a leaf node.
-        if(!node->left && !node->right)
-        {
-            if(node->parent)
-            {
-                Node *&leftOrRight = Node::findNode(node);
-                leftOrRight = nullptr;
-            }
-            DestroyNode(node);
-        }
-            // If node has an empty left, but non-empty right
-        else if(!node->left && node->right)
-        {
-            if(node->parent)
-            {
-                Node *&leftOrRight = Node::findNode(node);
-                // relink
-                leftOrRight = node->right;
-                node->right->parent = node->parent;
-            }
-            DestroyNode(node);
-        }
-            // IF node has an empty right, but non-empty left
-        else if(node->left && node->right)
-        {
-            Node*& leftOrRight = Node::findNode(node);
+  void BSTmap<KEY_TYPE, VALUE_TYPE>::erase(BSTmap_iterator it)
+  {
+		DeleteNode(it.p_node);
+  }
 
-            // relink
-            leftOrRight = node->left;
-            node->left->parent = node->parent;
+  template <typename KEY_TYPE, typename VALUE_TYPE>
+  void BSTmap<KEY_TYPE, VALUE_TYPE>::DeleteNode(Node* node)
+  {
+    // If node is a leaf node.
+    if (!node->left && !node->right)
+    {
+      if (node != pRoot)
+      {
+				// Set our parents to nullptrs
+        Node*& leftOrRight = Node::findNode(node);
+        leftOrRight = nullptr;
+      }
+			else
+			{
+				pRoot = nullptr;
+			}
+      DestroyNode(node);
+    }
+    // Two children
+    else if (node->left && node->right)
+    {
+			Node* successor = node->decrement();
+			// node copy successor
+			node->Value() = successor->Value();
+			node->key = successor->key;
+			DeleteNode(successor);
+    }
+    // If node only has one option
+    else
+    {
+			Node* child = (node->left) ? node->left : node->right;
 
-            DestroyNode(node);
-        }
-            // If node has non-empty both left and right
-        else if(node->left && node->right)
-        {
-            Node* predecessor = node->decrement();
-            node->Value() = predecessor->Value();
-            DeleteNode(predecessor);
-        }
-        else
-        {
-            std::cout << "Undefined delete case" << std::endl;
-        }
-	}
+			if (node != pRoot)
+			{
+				// Set our parents to child
+				Node*& leftOrRight = Node::findNode(node);
+				leftOrRight = child;
+				child->parent = node->parent;
+			}
+			else
+			{
+				pRoot = child;
+			}
+			DestroyNode(node);
+    }
+  }
 
-	template <typename KEY_TYPE, typename VALUE_TYPE>
-	void BSTmap<KEY_TYPE, VALUE_TYPE>::DestroyNode(Node* node)
-	{
-		delete node;
-		size_--;
-	}
+  template <typename KEY_TYPE, typename VALUE_TYPE>
+  void BSTmap<KEY_TYPE, VALUE_TYPE>::DestroyNode(Node* node)
+  {
+    delete node;
+    size_--;
+  }
 }
