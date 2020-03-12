@@ -497,54 +497,64 @@ namespace CS280
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	void BSTmap<KEY_TYPE, VALUE_TYPE>::erase(BSTmap_iterator it)
 	{
-		// TODO: implement
-		DeleteNode(it.p_node);
-		std::cout << "Not implemented erase yet" << std::endl;
+	    if(it.p_node->parent)
+        {
+            Node *treeNode = Node::findNode(it.p_node);
+            DeleteNode(it.p_node);
+        }
+		else
+        {
+            DeleteNode(pRoot);
+        }
 	}
 	
 	template <typename KEY_TYPE, typename VALUE_TYPE>
-	void BSTmap<KEY_TYPE, VALUE_TYPE>::DeleteNode(Node* node)
+	void BSTmap<KEY_TYPE, VALUE_TYPE>::DeleteNode(Node*& node)
 	{
-		// If node is a leaf node.
-		if(!node->left && !node->right)
-		{
-			Node*& leftOrRight = Node::findNode(node);
-			leftOrRight = nullptr;
-			DestroyNode(node);
-		}
-		// If node has an empty left, but non-empty right
-		else if(!node->left && node->right)
-		{
-			Node*& leftOrRight = Node::findNode(node);
-			
-			// relink
-			leftOrRight = node->right;
-			node->right->parent = node->parent;
-			
-			DestroyNode(node);
-		}
-		// IF node has an empty right, but non-empty left
-		else if(node->left && node->right)
-		{
-			Node*& leftOrRight = Node::findNode(node);
+// If node is a leaf node.
+        if(!node->left && !node->right)
+        {
+            if(node->parent)
+            {
+                Node *&leftOrRight = Node::findNode(node);
+                leftOrRight = nullptr;
+            }
+            DestroyNode(node);
+        }
+            // If node has an empty left, but non-empty right
+        else if(!node->left && node->right)
+        {
+            if(node->parent)
+            {
+                Node *&leftOrRight = Node::findNode(node);
+                // relink
+                leftOrRight = node->right;
+                node->right->parent = node->parent;
+            }
+            DestroyNode(node);
+        }
+            // IF node has an empty right, but non-empty left
+        else if(node->left && node->right)
+        {
+            Node*& leftOrRight = Node::findNode(node);
 
-			// relink
-			leftOrRight = node->left;
-			node->left->parent = node->parent;
+            // relink
+            leftOrRight = node->left;
+            node->left->parent = node->parent;
 
-			DestroyNode(node);
-		}
-		// If node has non-empty both left and right
-		else if(node->left && node->right)
-		{
-			Node* predecessor = node->decrement();
-			node->Value() = predecessor->Value();
-			DeleteNode(predecessor);
-		}
-		else
-		{
-			std::cout << "Undefined delete case" << std::endl;
-		}
+            DestroyNode(node);
+        }
+            // If node has non-empty both left and right
+        else if(node->left && node->right)
+        {
+            Node* predecessor = node->decrement();
+            node->Value() = predecessor->Value();
+            DeleteNode(predecessor);
+        }
+        else
+        {
+            std::cout << "Undefined delete case" << std::endl;
+        }
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>

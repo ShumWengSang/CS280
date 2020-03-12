@@ -123,7 +123,7 @@ namespace CS280 {
 		VALUE_TYPE& emplaceFind(Node*& root, BSTmap_iterator parent, KEY_TYPE const& key);
 		void Clear(BSTmap_iterator node);
 
-		void DeleteNode(Node* node);
+		void DeleteNode(Node*& node);
 		void DestroyNode(Node* node);
 		Node* MakeNode(KEY_TYPE k, VALUE_TYPE val, Node* p,
 				Node* l = nullptr, Node* r = nullptr, int h = 0, int b = 0);
