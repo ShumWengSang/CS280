@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-
+#include <algorithm>
 namespace CS280
 {
 	// static data members
@@ -122,8 +122,10 @@ namespace CS280
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node*&
-		AVLmap<KEY_TYPE, VALUE_TYPE>::Node::findNode(Node* node)
+		AVLmap<KEY_TYPE, VALUE_TYPE>::findNode(Node* node)
 	{
+		if (!node->parent)
+			return pRoot;
 		if (node->parent->right == node)
 			return node->parent->right;
 		else
@@ -161,6 +163,85 @@ namespace CS280
 		}
 	}
 
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	int AVLmap<KEY_TYPE, VALUE_TYPE>::Node::GetHeight()
+	{
+		return height;
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	int AVLmap<KEY_TYPE, VALUE_TYPE>::Node::GetBalance()
+	{
+		return balance;
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::Node::SetHeight(int h)
+	{
+		height = h;
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::Node::SetBalance(int b)
+	{
+		balance = b;
+	}
+	
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	int AVLmap<KEY_TYPE, VALUE_TYPE>::Node::CalcHeightFull(Node* node)
+	{
+		using namespace std;
+		if (node == NULL)
+			return 0;
+
+		// find the height of each subtree
+		int lh = CalcHeightFull(node->left);
+		int rh = CalcHeightFull(node->right);
+
+		node->SetHeight(max(lh, rh));
+		
+		return 1 + max(lh, rh);
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::Node::CalcNodeStatsCheap(Node* node)
+	{
+		using namespace std;
+		if (node == NULL)
+			return;
+
+		CalcHeightCheap(node);
+		CalcBalanceCheap(node);
+
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::Node::CalcHeightCheap(Node* node)
+	{
+		using namespace std;
+		// find the height of each subtree
+		int lh = node->left ? node->left->GetHeight() : 0;
+		int rh = node->right ? node->right->GetHeight() : 0;
+
+		
+		// Nothing
+		if (!node->left && !node->right)
+			node->SetHeight(0);
+		else 
+			node->SetHeight(max(lh, rh) + 1);
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::Node::CalcBalanceCheap(Node* node)
+	{
+		int lh = node->left ? node->left->GetHeight() + 1: 0;
+		int rh = node->right ? node->right->GetHeight() + 1: 0;
+		
+		node->SetBalance(lh - rh);
+	}
+
+	
 	//in implementation file 
 	//method's name and return value have to be fully qualified with
 	//all required namespace and class names (like CS280::AVLmap<KEY_TYPE,VALUE_TYPE>::AVLmap)
@@ -222,7 +303,78 @@ namespace CS280
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	VALUE_TYPE& AVLmap<KEY_TYPE, VALUE_TYPE>::operator[](KEY_TYPE const& key)
 	{
-		return emplaceFind(pRoot, end_it, key);
+		bool isInsertion = false;
+		VALUE_TYPE& returnVal = emplaceFind(pRoot, end_it, key, isInsertion);
+		// If we were inserting
+		if(isInsertion)
+		{
+			// Now we have to do some balancing.
+			while(insertionPtrs.size() != 0)
+			{
+				Node* y = insertionPtrs[0];
+				insertionPtrs.pop_front();
+				
+				// Update balance and height
+				Node::CalcNodeStatsCheap(y);
+
+				// Do balancing algo if less or eq to 1
+				//
+				y = findNode(y);
+				
+				if(y->GetBalance() > 1 && y->left->GetBalance() >= 0)
+				{
+					RotateRight(y);
+				}
+				else if(y->GetBalance() < -1 && y->right->GetBalance() <= 0)
+				{
+					RotateLeft(y);
+				}
+				else if(y->GetBalance() > 1 && y->left->GetBalance() < 0)
+				{
+					RotateRight(y->right);
+					RotateLeft(y);
+				}
+				else if(y->GetBalance() < -1 && y->right->GetBalance() > 0)
+				{
+					RotateLeft(y->left);
+					RotateRight(y);
+				}
+				
+				//if(!(abs(y->GetBalance()) <= 1))
+				//{
+				//	// Make it so that our pointer is in the tree...
+				//	y = findNode(y);
+				//	
+				//	// Perform rotation
+				//	// Balance will tell us which one is greater
+				//	if(y->GetBalance() > 0)
+				//	{
+				//		// Greater, so left side is greater then right side.
+
+				//		Node*& u = node;
+				//		// Less then, so right side is greater then left side.
+				//		int lhs = u->left ? u->left->GetHeight() : 0;
+				//		int rhs = u->right ? u->right->GetHeight() : 0;
+
+				//		if (y->GetBalance() > 0)
+				//		{
+				//			RotateRight(u);
+				//			RotateLeft(parentNodel);
+				//		}
+				//		else
+				//		{
+				//			RotateLeft(parentNodel);
+				//		}
+				//	}
+				//	else
+				//	{
+				//		Balance(y->right);
+				//	}
+				//}
+			}
+		}
+		insertionPtrs.clear();
+		return returnVal;
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
@@ -485,22 +637,24 @@ namespace CS280
 
 	}
 	template<typename KEY_TYPE, typename VALUE_TYPE>
-	VALUE_TYPE& AVLmap<KEY_TYPE, VALUE_TYPE>::emplaceFind(Node*& curretNode, AVLmap_iterator parent, KEY_TYPE const& key)
+	VALUE_TYPE& AVLmap<KEY_TYPE, VALUE_TYPE>::emplaceFind(Node*& curretNode, 
+		AVLmap_iterator parent, KEY_TYPE const& key, bool& inserted)
 	{
 		// Base case
 		if (curretNode == nullptr)
 		{
+			inserted = true;
 			curretNode = MakeNode(key, VALUE_TYPE{}, parent.p_node);
 			return curretNode->Value();
 		}
-		// Case that we found
-
+		insertionPtrs.push_front(curretNode);
 		if (key < curretNode->Key())
-			return emplaceFind(curretNode->left, curretNode, key);
+			return emplaceFind(curretNode->left, curretNode, key, inserted);
 		else if (curretNode->Key() < key)
-			return emplaceFind(curretNode->right, curretNode, key);
-		else
-			return curretNode->Value();
+			return  emplaceFind(curretNode->right, curretNode, key, inserted);
+		else //If key == value
+			return  curretNode->Value();
+
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
@@ -532,7 +686,7 @@ namespace CS280
 			if (node != pRoot)
 			{
 				// Set our parents to nullptrs
-				Node*& leftOrRight = Node::findNode(node);
+				Node*& leftOrRight = findNode(node);
 				leftOrRight = nullptr;
 			}
 			else
@@ -558,7 +712,7 @@ namespace CS280
 			if (node != pRoot)
 			{
 				// Set our parents to child
-				Node*& leftOrRight = Node::findNode(node);
+				Node*& leftOrRight = findNode(node);
 				leftOrRight = child;
 				child->parent = node->parent;
 			}
@@ -588,5 +742,51 @@ namespace CS280
 		newNode->left = Copy(root->left);
 		newNode->right = Copy(root->right);
 		return newNode;
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::RotateLeft(Node*& root)
+	{
+		Node* temp = root;
+		root = root->right;
+		temp->right = root->left;
+		root->left = temp;
+
+		Node* copyRoot = root;
+		// Set parants and update stats.
+		root->parent = temp->parent;
+		temp->parent = root;
+
+		Node::CalcNodeStatsCheap(temp);
+		Node::CalcNodeStatsCheap(copyRoot);
+		UpdateParentHeight(copyRoot);
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::RotateRight(Node*& root)
+	{
+		Node* temp = root;
+		root = root->left;
+		temp->left = root->right;
+		root->right = temp;
+
+		Node* copyRoot = root;
+		// Set parants and update stats.
+		root->parent = temp->parent;
+		temp->parent = root;
+
+		Node::CalcNodeStatsCheap(temp);
+		Node::CalcNodeStatsCheap(copyRoot);
+		UpdateParentHeight(copyRoot);
+	}
+
+	template <typename KEY_TYPE, typename VALUE_TYPE>
+	void AVLmap<KEY_TYPE, VALUE_TYPE>::UpdateParentHeight(Node*& node)
+	{
+		while(node->parent != nullptr)
+		{
+			node = node->parent;
+			Node::CalcNodeStatsCheap(node);
+		}
 	}
 }

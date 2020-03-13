@@ -1,5 +1,6 @@
 #ifndef AVLmap_H
 #define AVLmap_H
+#include <deque>
 
 namespace CS280 {
 
@@ -24,12 +25,13 @@ namespace CS280 {
 
 			// Returns a reference to either the left or right node.
 			// Node passed in HAS to 1) have a parent
-			static Node*& findNode(Node*);
+
 			static void ShallowCopy(Node* lhs, Node* rhs);
 		private:
 			KEY_TYPE    key;
 			VALUE_TYPE  value;
-			int         height, balance; // optional
+			int height;
+			int balance;
 			Node* parent;
 			Node* left;
 			Node* right;
@@ -38,6 +40,16 @@ namespace CS280 {
 
 			Node* FindSuccesor();
 			Node* FindPredecessor();
+
+			int GetHeight();
+			int GetBalance();
+			void SetHeight(int h);
+			void SetBalance(int b);
+
+			static int CalcHeightFull(Node* node);
+			static void CalcHeightCheap(Node* node);
+			static void CalcBalanceCheap(Node* node);
+			static void CalcNodeStatsCheap(Node* node);
 		};
 	private:
 		struct AVLmap_iterator {
@@ -121,17 +133,25 @@ namespace CS280 {
 	private:
 		// ...
 		AVLmap_iterator find(AVLmap_iterator root, KEY_TYPE const& key);
-		VALUE_TYPE& emplaceFind(Node*& root, AVLmap_iterator parent, KEY_TYPE const& key);
+		VALUE_TYPE& emplaceFind(Node*& root, AVLmap_iterator parent, KEY_TYPE const& key, bool& inserted);
 		void Clear(AVLmap_iterator node);
 		Node* Copy(Node* root);
 		void DeleteNode(Node* node);
 		void DestroyNode(Node* node);
+		Node*& findNode(Node*);
 		Node* MakeNode(KEY_TYPE k, VALUE_TYPE val, Node* p,
 			Node* l = nullptr, Node* r = nullptr, int h = 0, int b = 0);
 
+		// Rotation functions
+		static void RotateLeft(Node*& root);
+		static void RotateRight(Node*& root);
+		static void UpdateParentHeight(Node*& node);
+		
 		// printing functions
 		char getedgesymbol(const Node* node) const;
 		int getdepth(Node* node) const;
+
+		std::deque<Node*> insertionPtrs = {};
 	};
 
 
