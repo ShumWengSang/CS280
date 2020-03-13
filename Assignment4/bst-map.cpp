@@ -189,7 +189,7 @@
 	BSTmap<KEY_TYPE, VALUE_TYPE>::BSTmap(const BSTmap& rhs)
 	{
 		size_ = 0;
-		pRoot = Copy(rhs.pRoot);
+		pRoot = Copy(rhs.pRoot, nullptr);
 
 		// Todo: Copy constructor
 	}
@@ -202,7 +202,7 @@
 		{
 			Clear(pRoot);
 		}
-		pRoot = Copy(rhs.pRoot);
+		pRoot = Copy(rhs.pRoot, nullptr);
 		return *this;
 	}
 
@@ -579,14 +579,14 @@
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	typename BSTmap<KEY_TYPE, VALUE_TYPE>::Node*
-		BSTmap<KEY_TYPE, VALUE_TYPE>::Copy(BSTmap::Node* root)
+		BSTmap<KEY_TYPE, VALUE_TYPE>::Copy(BSTmap::Node* root, BSTmap::Node* parent)
 	{
 		// Base case
 		if (!root)
 			return nullptr;
-		Node* newNode = MakeNode(root->key, root->value, nullptr);
-		newNode->left = Copy(root->left);
-		newNode->right = Copy(root->right);
+		Node* newNode = MakeNode(root->key, root->value, parent);
+		newNode->left = Copy(root->left, newNode);
+		newNode->right = Copy(root->right, newNode);
 		return newNode;
 	}
 }

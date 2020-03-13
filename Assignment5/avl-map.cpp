@@ -319,58 +319,26 @@ namespace CS280
 
 				// Do balancing algo if less or eq to 1
 				//
-				y = findNode(y);
+				Node*& node = findNode(y);
 				
-				if(y->GetBalance() > 1 && y->left->GetBalance() >= 0)
+				if(node->GetBalance() > 1 && node->left->GetBalance() >= 0) // RR
 				{
-					RotateRight(y);
+					RotateRight(node);
 				}
-				else if(y->GetBalance() < -1 && y->right->GetBalance() <= 0)
+				else if(node->GetBalance() < -1 && node->right->GetBalance() <= 0)  // LL
 				{
-					RotateLeft(y);
+					RotateLeft(node);
 				}
-				else if(y->GetBalance() > 1 && y->left->GetBalance() < 0)
+				else if(node->GetBalance() > 1 && node->left->GetBalance() < 0) // RL
 				{
-					RotateRight(y->right);
-					RotateLeft(y);
+					RotateLeft(node->left);
+					RotateRight(node);
 				}
-				else if(y->GetBalance() < -1 && y->right->GetBalance() > 0)
+				else if(node->GetBalance() < -1 && node->right->GetBalance() > 0) //LR
 				{
-					RotateLeft(y->left);
-					RotateRight(y);
+					RotateRight(node->right);
+					RotateLeft(node);
 				}
-				
-				//if(!(abs(y->GetBalance()) <= 1))
-				//{
-				//	// Make it so that our pointer is in the tree...
-				//	y = findNode(y);
-				//	
-				//	// Perform rotation
-				//	// Balance will tell us which one is greater
-				//	if(y->GetBalance() > 0)
-				//	{
-				//		// Greater, so left side is greater then right side.
-
-				//		Node*& u = node;
-				//		// Less then, so right side is greater then left side.
-				//		int lhs = u->left ? u->left->GetHeight() : 0;
-				//		int rhs = u->right ? u->right->GetHeight() : 0;
-
-				//		if (y->GetBalance() > 0)
-				//		{
-				//			RotateRight(u);
-				//			RotateLeft(parentNodel);
-				//		}
-				//		else
-				//		{
-				//			RotateLeft(parentNodel);
-				//		}
-				//	}
-				//	else
-				//	{
-				//		Balance(y->right);
-				//	}
-				//}
 			}
 		}
 		insertionPtrs.clear();
