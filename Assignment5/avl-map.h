@@ -135,7 +135,7 @@ namespace CS280 {
 		AVLmap_iterator find(AVLmap_iterator root, KEY_TYPE const& key);
 		VALUE_TYPE& emplaceFind(Node*& root, AVLmap_iterator parent, KEY_TYPE const& key, bool& inserted);
 		void Clear(AVLmap_iterator node);
-		Node* Copy(Node* root);
+		Node* Copy(Node* root, Node* parent);
 		void DeleteNode(Node* node);
 		void DestroyNode(Node* node);
 		Node*& findNode(Node*);

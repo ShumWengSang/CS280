@@ -270,7 +270,7 @@ namespace CS280
 	AVLmap<KEY_TYPE, VALUE_TYPE>::AVLmap(const AVLmap& rhs)
 	{
 		size_ = 0;
-		pRoot = Copy(rhs.pRoot);
+		pRoot = Copy(rhs.pRoot, nullptr);
 
 		// Todo: Copy constructor
 	}
@@ -283,15 +283,17 @@ namespace CS280
 		{
 			Clear(pRoot);
 		}
-		pRoot = Copy(rhs.pRoot);
+		pRoot = Copy(rhs.pRoot, nullptr);
 		return *this;
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	AVLmap<KEY_TYPE, VALUE_TYPE>::~AVLmap()
 	{
-		if (pRoot)
+		if (pRoot) 
+		{
 			Clear(pRoot);
+		}
 	}
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
@@ -744,14 +746,14 @@ namespace CS280
 
 	template<typename KEY_TYPE, typename VALUE_TYPE>
 	typename AVLmap<KEY_TYPE, VALUE_TYPE>::Node*
-		AVLmap<KEY_TYPE, VALUE_TYPE>::Copy(AVLmap::Node* root)
+		AVLmap<KEY_TYPE, VALUE_TYPE>::Copy(AVLmap::Node* root, Node* parent)
 	{
 		// Base case
 		if (!root)
 			return nullptr;
-		Node* newNode = MakeNode(root->key, root->value, nullptr);
-		newNode->left = Copy(root->left);
-		newNode->right = Copy(root->right);
+		Node* newNode = MakeNode(root->key, root->value, parent, nullptr, nullptr, root->GetHeight(), root->GetBalance());
+		newNode->left = Copy(root->left, newNode);
+		newNode->right = Copy(root->right, newNode);
 		return newNode;
 	}
 
