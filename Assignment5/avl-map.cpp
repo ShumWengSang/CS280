@@ -642,12 +642,22 @@ namespace CS280
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	void AVLmap<KEY_TYPE, VALUE_TYPE>::erase(AVLmap_iterator it)
 	{
+		if (it == AVLmap::end_it)
+			return;
 		DeleteNode(it.p_node);
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	void AVLmap<KEY_TYPE, VALUE_TYPE>::DeleteNode(Node* node)
 	{
+		// Store all the parents in a stack
+		Node* parentNode = node->parent;
+		while (parentNode)
+		{
+			insertionPtrs.push_front(parentNode);
+			parentNode = parentNode->parent;
+		}
+		
 		// If node is a leaf node.
 		if (!node->left && !node->right)
 		{
@@ -690,6 +700,39 @@ namespace CS280
 			}
 			DestroyNode(node);
 		}
+
+		// Now handle AVL balancing.
+		while(!insertionPtrs.empty())
+		{
+			Node* stackNode = insertionPtrs[0];
+			insertionPtrs.pop_front();
+			
+			// Update balance and height
+			Node::CalcNodeStatsCheap(stackNode);
+
+			// Do balancing algo if less or eq to 1
+			//
+			Node*& node = findNode(stackNode);
+
+			if (node->GetBalance() > 1 && node->left->GetBalance() >= 0) // RR
+			{
+				RotateRight(node);
+			}
+			else if (node->GetBalance() < -1 && node->right->GetBalance() <= 0)  // LL
+			{
+				RotateLeft(node);
+			}
+			else if (node->GetBalance() > 1 && node->left->GetBalance() < 0) // RL
+			{
+				RotateLeft(node->left);
+				RotateRight(node);
+			}
+			else if (node->GetBalance() < -1 && node->right->GetBalance() > 0) //LR
+			{
+				RotateRight(node->right);
+				RotateLeft(node);
+			}
+		}
 	}
 
 	template <typename KEY_TYPE, typename VALUE_TYPE>
@@ -724,7 +767,7 @@ namespace CS280
 		// Set parants and update stats.
 		root->parent = temp->parent;
 		temp->parent = root;
-
+		
 		Node::CalcNodeStatsCheap(temp);
 		Node::CalcNodeStatsCheap(copyRoot);
 		UpdateParentHeight(copyRoot);

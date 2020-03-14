@@ -134,15 +134,15 @@ void test8() {
     std::cout << map << std::endl;
 
     // similar test mirrored
-    CS280::AVLmap<int,int> map2;
-    map2[-5] = 5; 
-    map2[-1] = 1;
-    map2[-10] = 10;
-    map2[-8] = 8;
-    map2[-12] = 12;
-    std::cout << map2 << std::endl;
-    map2.erase( map2.find( -1 ) );  // should cause rebalance at 5
-    std::cout << map2 << std::endl;
+    //CS280::AVLmap<int,int> map2;
+    //map2[-5] = 5; 
+    //map2[-1] = 1;
+    //map2[-10] = 10;
+    //map2[-8] = 8;
+    //map2[-12] = 12;
+    //std::cout << map2 << std::endl;
+    //map2.erase( map2.find( -1 ) );  // should cause rebalance at 5
+    //std::cout << map2 << std::endl;
 }
 
 

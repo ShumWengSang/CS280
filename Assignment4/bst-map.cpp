@@ -520,6 +520,8 @@
 	template <typename KEY_TYPE, typename VALUE_TYPE>
 	void BSTmap<KEY_TYPE, VALUE_TYPE>::erase(BSTmap_iterator it)
 	{
+    if (it == end_it)
+			return;
 		DeleteNode(it.p_node);
 	}
 
