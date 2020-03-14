@@ -766,7 +766,7 @@ namespace CS280
 		Node* copyRoot = root;
 		// Set parants and update stats.
 		root->parent = temp->parent;
-		temp->right->parent = temp;
+		if (temp->right )temp->right->parent = temp;
 		temp->parent = root;
 		
 		Node::CalcNodeStatsCheap(temp);
@@ -785,7 +785,7 @@ namespace CS280
 		Node* copyRoot = root;
 		// Set parants and update stats.
 		root->parent = temp->parent;
-		temp->left->parent = temp;
+		if(temp->left) temp->left->parent = temp;
 		temp->parent = root;
 
 		Node::CalcNodeStatsCheap(temp);
